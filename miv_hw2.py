@@ -6,7 +6,7 @@
 
 from typing import *
 import sys
-from numpy.lib.index_tricks import nd_grid
+import os
 
 import sympy as sym
 from sympy import Matrix,latex
@@ -406,6 +406,7 @@ def run(
 
   if plot:
     errprint(f'final plotting')
+    os.mkdir('py_img', exist_ok = True)
     # plot the solutions
     plt.legend()
     if show:
