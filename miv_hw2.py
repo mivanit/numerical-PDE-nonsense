@@ -19,10 +19,7 @@ from pydbg import dbg
 # from util import *
 
 FloatArrayLike = Union[float, NDArray[float]]
-
-
 Numerical = Union[float, int, sym.Symbol]
-
 
 BoundaryCondition = Literal[
   'periodic', # set endpoints equal to each other (None)
@@ -36,15 +33,6 @@ BCparam = NamedTuple('BCparam', [
   ('func', Any),
 ])
 
-
-SchemeName = Literal[
-  'central-space-euler', 
-  'lax-friedrichs',
-  'lax-wendroff-old',
-  'lax-wendroff',
-  'theta-scheme',
-]
-
 CONSTS : Dict[str,sym.Symbol] = {
   'theta' : sym.Symbol('theta'),
   'a' : sym.Symbol('a'),
@@ -53,31 +41,31 @@ CONSTS : Dict[str,sym.Symbol] = {
   'h' : sym.Symbol('h'),
 }
 
-
-SCHEMES : Dict[SchemeName, sym.Expr] = {
-  'central-space-euler' : lambda v,i,lm : (
-    v[i] - lm * (v[i+1] - v[i-1]) / 2
-  ),
-  'lax-friedrichs' : lambda v,i,lm : (
-    ((1+lm)/2) * v[i-1] + ((1-lm)/2) * v[i+1]
-  ),
-  'lax-wendroff-old' : lambda v,i,lm : (
-    (lm/2) * (1+lm) * v[i-1] 
-    + (1 - lm**2) * v[i] 
-    - (lm/2) * (1-lm) * v[i+1]
-  ),
-  'lax-wendroff' : lambda v,i,lm : (
-    v[i]
-    - (lm / 2) * (v[i+1] - v[i-1])
-    + (lm**2.0) * (v[i+1] - 2 * v[i] + v[i-1])
-  ),
-}
-
-
 def errprint(s : str, *args,**kwargs):
   print('> ', s, *args, file = sys.stderr, **kwargs)
 
 def off_diag_mat(N : int, offset : int = 0, val : float = 1, periodic : bool = False) -> Matrix:
+  """generates a square matrix with elements on an off-diagonal
+  
+  ### Parameters:
+   - `N : int`   
+     matrix dimension
+   - `offset : int`   
+      offset of diagonal elements (positive for above, negative for below)
+     (defaults to `0`)
+   - `val : float`   
+     value of off-diagonal elements
+     (defaults to `1`)
+   - `periodic : bool`   
+     whether to fill in the opposite corner of the matrix
+     (defaults to `False`)
+  
+  ### Returns:
+   - `Matrix` 
+  
+  ### Raises:
+   - `ValueError` : invalid offset
+  """
   if offset == 0:
     return val * sym.eye(N)
 
@@ -106,15 +94,13 @@ def off_diag_mat(N : int, offset : int = 0, val : float = 1, periodic : bool = F
       return output
 
     else:
-      raise Exception(f'this is an innacessible state, smh. {N=} {offset=} {val=} {output=} {submat=}')
+      raise ValueError(f'this is an innacessible state, smh. {N=} {offset=} {val=} {output=} {submat=}')
 
 MATRIX_DIFFOPS : Dict[str, Callable[[int, float], Matrix]] = {
   '0' : lambda N,h,per=False : (off_diag_mat(N, 1, 1, per) + off_diag_mat(N, -1, -1, per)) / (2 * h),
   '+' : lambda N,h,per=False : (off_diag_mat(N, 1, 1, per) + off_diag_mat(N, 0, -1, per)) / h,
   '-' : lambda N,h,per=False : (off_diag_mat(N, 0, 1, per) + off_diag_mat(N, -1, -1, per)) / h,
 }
-
-
 
 def theta_eqn_mat_LHS(
     N : int,
@@ -125,6 +111,10 @@ def theta_eqn_mat_LHS(
     Delta_t : Numerical = CONSTS['Delta_t'],
     h : Numerical = CONSTS['h'],
   ) -> Matrix:
+  """left hand side of the theta scheme
+  
+  $$ ( I - \Theta \Delta_t ( a D_0 + \eta D_+ D_- ) ) $$
+  """
   
   per : bool =  BC.type == 'periodic'
 
@@ -145,6 +135,10 @@ def theta_eqn_mat_RHS(
     Delta_t : Numerical = CONSTS['Delta_t'],
     h : Numerical = CONSTS['h'],
   ) -> Matrix:
+  """right hand side of the theta scheme
+
+  $$ ( I + (1 - \Theta) \Delta_t ( a D_0 + \eta D_+ D_- ) ) $$
+  """
 
   per : bool =  BC.type == 'periodic'
 
@@ -161,6 +155,24 @@ def theta_scheme_eqn(
     use_ndarr : bool = False,
     **kwargs,
   ) -> Union[NDArray,Matrix]:
+  """get the full transition matrix for the theta scheme
+
+  NOTE: if `use_ndarr` is `False`, then inverting the matrix might take a loooong time
+  
+  ### Parameters:
+   - `N : int`   
+      matrix dimension
+   - `use_ndarr : bool`   
+      whether to return a numpy array or a sympy matrix
+     (defaults to `False`)
+  
+  ### Returns:
+   - `Union[NDArray,Matrix]` 
+    `NDArray` if `use_ndarr` is `True`, otherwise `Matrix`
+  
+  ### Raises:
+   - `ValueError` : [description]
+  """
 
   LHS : Matrix = theta_eqn_mat_LHS(N, **kwargs)
   RHS : Matrix = theta_eqn_mat_RHS(N, **kwargs)
@@ -344,6 +356,10 @@ def run(
     print_table : bool = True,
     **iter_kwargs,
   ):
+  """run the solver for several grid sizes
+  
+  TODO: allow for different options of `a`, `eta`
+  """
 
   errprint('initializing')
 
