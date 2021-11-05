@@ -28,25 +28,42 @@ DISCRETIZATION_VARS : Dict[str, Tuple[Symbol,Symbol]] = {
 # other
 gamma : Symbol = Symbol('gamma')
 
+DIFF_FIRSTORDER : List[str] = ['D_0', 'D_+', 'D_-']
+DIFF_SECONDORDER : List[str] = ['D_- D_+', 'D_+^2', 'D_-^2']
+
 # DIFFERENCE_OPERATORS_SPACE
-DIFFERENCE_OPERATORS : Dict[str, sym.Expr] = {
+DIFFERENCE_OPERATORS : Dict[str, Callable] = {
+	# first order
 	'D_0' : lambda f, x, h : (f[x + 1] - f[x - 1]) / (2 * h),
 	'D_+' : lambda f, x, h : (f[x+1] - f[x]) / h,
 	'D_-' : lambda f, x, h : (f[x] - f[x-1]) / h,
+	# second order
+	'D_- D_+' : lambda f, x, h : ( f[x+1] - 2 * f[x] + f[x-h] ) / (h**2),
+	'D_+^2' : lambda f, x, h : ( f[x+2] - 2 * f[x+1] + f[x] ) / (h**2),
+	'D_-^2' : lambda f, x, h : ( f[x] - 2 * f[x-1] + f[x-2] ) / (h**2),
 }
 
-DIFFERENCE_OPERATORS_INT : Dict[str, int] = {
-	'D_0' : 0,
-	'D_+' : 1,
-	'D_-' : -1,
-}
+# DIFFERENCE_OPERATORS_INT : Dict[str, int] = {
+# 	'D_0' : 0,
+# 	'D_+' : 1,
+# 	'D_-' : -1,
+# 	'D_- D_+' : 1,
+# 	'D_+^2' : 2,
+# 	'D_-^2' : -2,
+# }
 
 SOLVEFOR_IDXS : Dict[str, List[int]] = {
 	# 'D_0' : [+1, 0],
 	'D_0' : [+1],
 	'D_+' : [+1],
 	'D_-' : [0],
+	'D_- D_+' : [+1],
+	'D_+^2' : [+2],
+	'D_-^2' : [0],
 }
+
+
+
 
 # DIFFERENCE_OPERATORS_TIME : Dict[str, sym.Expr] = {
 # 	'0' : lambda f, x, h : (f[:,x + 1] - f[:,x - 1]) / (2 * h),
@@ -64,6 +81,7 @@ def exprprint(
 		expr : Union[Iterable, sym.Expr],
 		name : Optional[str] = None, 
 		rhs : Optional[Expr] = None,
+		comp_op : str = '=',
 		multi : bool = False, 
 	) -> str:
 
@@ -84,45 +102,68 @@ def exprprint(
 
 	if not multi:
 		print(
-			f"{name if name is not None else ''}$$ {latex(expr[0])} {f'= {latex(rhs[0])}' if rhs is not None else ''} $$"
+			name if name is not None else '',
+			"$$ ",
+			latex(expr[0]),
+			f" {comp_op} ",
+			latex(rhs[0]) if rhs is not None else '',
+			" $$",
 		)
 	else:
 
-		expr = Matrix(expr).T
-		rhs = Matrix(rhs).T
+		expr = Matrix(expr)
+		rhs = Matrix(rhs)
 		print(
 			name if name is not None else '',
-			'$$ ',
+			"$$ ",
 			latex(expr),
-			' = ',
+			f" {comp_op} ",
 			latex(rhs),
-			' $$',
+			" $$",
 		)
 
-def main():
+def stability_eval(diff_ops_eqn : List[str]):
 
 	for discretization,(idx_sym, grid_size) in DISCRETIZATION_VARS.items():
-		for operator,diff_op in DIFFERENCE_OPERATORS.items():
+		for operator in diff_ops_eqn:
+			diff_op : Callable = DIFFERENCE_OPERATORS[operator]
 
 			idx_offset : List[int] = SOLVEFOR_IDXS[operator]
 			solvefor_lst : List[Expr] = [ u[ idx_sym + idx ] for idx in idx_offset ]
 			solvefor : Expr = solvefor_lst[0]
 			
 			# print(f'{discretization=} {operator=} {idx_sym=} {grid_size=} {solvefor=}    ')
-			print(f' - {discretization} discretization with operator ${operator}$, solving for ${latex(solvefor)}$    ')
+			print(f' - {discretization} discretization with operator ${operator}$, solving for ${latex(solvefor)}$, and $z := {latex(gamma)}{latex(grid_size)}$    ')
 			
 			eqn : Expr = diff_op(u, idx_sym, grid_size) - gamma * u[idx_sym]
-			solns : Dict[Expr,Expr] = sym.solve(eqn, solvefor)[0]
+			soln : Expr = sym.solve(eqn, solvefor)[0]
+			# solns : List[Expr] = [
+			# 	sym.solve(eqn, slvfr)[0]
+			# 	for slvfr in solvefor_lst
+			# ]
 
-			print(solns)
-			
 			exprprint(eqn, rhs = 0)
-			exprprint(solns, rhs = solvefor)
-			# exprprint([ solns[r] for r in solvefor ], rhs = solvefor)
+			# exprprint(solns, rhs = solvefor)
+			exprprint(soln, rhs = solvefor)
+			exprprint(
+				abs(soln / u[idx_sym + SOLVEFOR_IDXS[operator][0] - 1 ]), 
+				comp_op = '\\leq',
+				rhs = 1,
+			)
 
 			print('\n')
 
-main()
+
+
+
+def main():
+	print(r'## equation $u_t = - u_x$', '\n')
+	stability_eval(DIFF_FIRSTORDER)
+	print(r'## equation $u_t = u_{xx}$', '\n')
+	stability_eval(DIFF_SECONDORDER)
+
+if __name__ == '__main__':
+	main()
 
 
 
