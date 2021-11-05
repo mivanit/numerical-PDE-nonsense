@@ -18,6 +18,18 @@ from pydbg import dbg
 # sys.path.append('../')
 # from util import *
 
+def raise_ValueError(msg : str) -> None:
+  raise ValueError(msg)
+
+def freeze_setitem(obj : object) -> None:
+  """freezes an object's __setitem__ method
+  
+  ### Parameters:
+   - `obj : object`   
+     object to freeze
+  """
+  obj.__setitem__ = lambda self, key, value : raise_ValueError(f'setting values not allowed for {obj=}')
+
 FloatArrayLike = Union[float, NDArray[float]]
 Numerical = Union[float, int, sym.Symbol]
 
@@ -343,10 +355,8 @@ def run(
     try_n_grids : List[int] = [8,16,32], # [16,32,64,128]
     t_final : float = 1.0,
     alpha : float = 1.0,
-    n_gridpoints : int = 8,
     bounds : Tuple[float, float] = (0, np.pi),
     exact_soln : Callable[[float, FloatArrayLike], FloatArrayLike] = lambda t,x: np.zeros_like(x),
-	  cfl : float = .1,
     mat_generator : Optional[Callable[[int,Any], Matrix]] = theta_scheme_eqn,
     scheme_kwargs : Optional[Dict[str, Any]] = None,
     IC : Callable[[FloatArrayLike], FloatArrayLike] = lambda x: np.zeros_like(x),
