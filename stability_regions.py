@@ -38,7 +38,7 @@ DIFFERENCE_OPERATORS : Dict[str, Callable] = {
 	'D_+' : lambda f, x, h : (f[x+1] - f[x]) / h,
 	'D_-' : lambda f, x, h : (f[x] - f[x-1]) / h,
 	# second order
-	'D_- D_+' : lambda f, x, h : ( f[x+1] - 2 * f[x] + f[x-h] ) / (h**2),
+	'D_- D_+' : lambda f, x, h : ( f[x+1] - 2 * f[x] + f[x-1] ) / (h**2),
 	'D_+^2' : lambda f, x, h : ( f[x+2] - 2 * f[x+1] + f[x] ) / (h**2),
 	'D_-^2' : lambda f, x, h : ( f[x] - 2 * f[x-1] + f[x-2] ) / (h**2),
 }
@@ -53,14 +53,46 @@ DIFFERENCE_OPERATORS : Dict[str, Callable] = {
 # }
 
 SOLVEFOR_IDXS : Dict[str, List[int]] = {
-	# 'D_0' : [+1, 0],
-	'D_0' : [+1],
+	'D_0' : [+1,0,-1],
 	'D_+' : [+1],
 	'D_-' : [0],
-	'D_- D_+' : [+1],
-	'D_+^2' : [+2],
-	'D_-^2' : [0],
+	'D_- D_+' : [+1,0,-1],
+	'D_+^2' : [+2,+1,0],
+	'D_-^2' : [0,-1,-2],
 }
+
+def solve_matrix_diffops(soln : Expr, solvefor_lst : List[Expr], indent = '    ') -> Matrix:
+	"""given an equation relating indices [n,..,n+k], solve for [n+1,..,n+k] as a function of [n,..,n+k-1]"""
+
+	# construct the matrix by extracting coefficients from the solved equations
+	A : Matrix = Matrix([
+		[
+			sym.simplify( soln.subs(
+				{ s_i : 0 for s_i in solvefor_lst[1:] if s_i != s_q }
+			) / s_q )
+			for s_q in solvefor_lst[1:]
+		],
+		*[
+			[
+				1 if s_j == s_q else 0
+				for s_j in solvefor_lst[1:]
+			]
+			for s_q in solvefor_lst[1:-1]
+		],
+	])
+
+	print(
+		indent,
+		"$$ ",
+		latex(Matrix(solvefor_lst[:-1])),
+		" = ",
+		latex(A),
+		"\\cdot",
+		latex(Matrix(solvefor_lst[1:])),
+		" $$",
+	)
+
+	return A
 
 
 
@@ -83,6 +115,7 @@ def exprprint(
 		rhs : Optional[Expr] = None,
 		comp_op : str = '=',
 		multi : bool = False, 
+		indent : str = '',
 	) -> str:
 
 	# handle list conversion
@@ -103,6 +136,7 @@ def exprprint(
 	if not multi:
 		print(
 			name if name is not None else '',
+			indent,
 			"$$ ",
 			latex(expr[0]),
 			f" {comp_op} ",
@@ -110,17 +144,31 @@ def exprprint(
 			" $$",
 		)
 	else:
+		raise NotImplementedError()
+		# expr = Matrix(expr)
+		# rhs = Matrix(rhs)
+		# print(
+		# 	name if name is not None else '',
+		# 	"$$ ",
+		# 	latex(expr),
+		# 	f" {comp_op} ",
+		# 	latex(rhs),
+		# 	" $$",
+		# )
 
-		expr = Matrix(expr)
-		rhs = Matrix(rhs)
-		print(
-			name if name is not None else '',
-			"$$ ",
-			latex(expr),
-			f" {comp_op} ",
-			latex(rhs),
-			" $$",
-		)
+def print_eigvals_conditions(
+		egiv : List[Expr], 
+		sym_solve : Expr = gamma, 
+		indent : str = '',
+	) -> None:
+	
+	# print base eigenvalue condition
+	print(
+		indent,
+		"$$ ",
+		'\\qquad'.join([ latex(abs(e)) + '\\leq 1' for e in egiv ]),
+		" $$",
+	)
 
 def stability_eval(diff_ops_eqn : List[str]):
 
@@ -133,7 +181,7 @@ def stability_eval(diff_ops_eqn : List[str]):
 			solvefor : Expr = solvefor_lst[0]
 			
 			# print(f'{discretization=} {operator=} {idx_sym=} {grid_size=} {solvefor=}    ')
-			print(f' - {discretization} discretization with operator ${operator}$, solving for ${latex(solvefor)}$, and $z := {latex(gamma)}{latex(grid_size)}$    ')
+			print(f' - {discretization} discretization with operator ${operator}$, solving for ${latex(solvefor_lst)}$, and $z := {latex(gamma)}{latex(grid_size)}$    ')
 			
 			eqn : Expr = diff_op(u, idx_sym, grid_size) - gamma * u[idx_sym]
 			soln : Expr = sym.solve(eqn, solvefor)[0]
@@ -141,15 +189,27 @@ def stability_eval(diff_ops_eqn : List[str]):
 			# 	sym.solve(eqn, slvfr)[0]
 			# 	for slvfr in solvefor_lst
 			# ]
+			
+			print('   - original difference scheme')
+			exprprint(eqn, rhs = 0, indent = '    ')
+			print('   - solving for next timestep')
+			exprprint(soln, rhs = solvefor, indent = '    ')
+			
+			if len(solvefor_lst) == 1:
+				print(f'   - condition on ${latex(gamma)}$')
+				exprprint(
+					abs(soln / u[idx_sym + SOLVEFOR_IDXS[operator][0] - 1 ]), 
+					comp_op = '\\leq',
+					rhs = 1,
+					indent = '    ',
+				)
+			else:
+				print(f'   - matrix equation')
+				sln_mat : Matrix = solve_matrix_diffops(soln, solvefor_lst, indent = '    ')
+				sln_mat_eigvals : List[Expr] = sln_mat.eigenvals()
+				print(f'   - condition on ${latex(gamma)}$ derived from requiring each eigenvalue be less than 1 in abosolute value')
+				print_eigvals_conditions(sln_mat_eigvals, indent = '    ')
 
-			exprprint(eqn, rhs = 0)
-			# exprprint(solns, rhs = solvefor)
-			exprprint(soln, rhs = solvefor)
-			exprprint(
-				abs(soln / u[idx_sym + SOLVEFOR_IDXS[operator][0] - 1 ]), 
-				comp_op = '\\leq',
-				rhs = 1,
-			)
 
 			print('\n')
 
@@ -157,9 +217,9 @@ def stability_eval(diff_ops_eqn : List[str]):
 
 
 def main():
-	print(r'## equation $u_t = - u_x$', '\n')
+	print(r'# equation $u_t = - u_x$', '\n')
 	stability_eval(DIFF_FIRSTORDER)
-	print(r'## equation $u_t = u_{xx}$', '\n')
+	print(r'# equation $u_t = u_{xx}$', '\n')
 	stability_eval(DIFF_SECONDORDER)
 
 if __name__ == '__main__':
