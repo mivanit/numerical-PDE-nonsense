@@ -1,7 +1,14 @@
 from typing import *
+import sys
 
 from sympy import latex,Symbol,Expr,Matrix
 import sympy as sym
+
+import numpy as np
+
+import matplotlib.pyplot as plt
+
+from theta_scheme_numerics import MATRIX_DIFFOPS
 
 
 # global symbol declarations
@@ -23,7 +30,6 @@ DISCRETIZATION_VARS : Dict[str, Tuple[Symbol,Symbol]] = {
 	'time' : (n, Delta_t),
 }
 
-# class IndexedSymbol(sym.Indexed):
 
 # other
 gamma : Symbol = Symbol('gamma')
@@ -95,6 +101,9 @@ def solve_matrix_diffops(soln : Expr, solvefor_lst : List[Expr], indent = '    '
 	return A
 
 
+def matrix_to_smallmatrix(mat : str) -> str:
+	return mat.replace(r'{matrix}', r'{smallmatrix}')
+
 
 
 # DIFFERENCE_OPERATORS_TIME : Dict[str, sym.Expr] = {
@@ -156,19 +165,117 @@ def exprprint(
 		# 	" $$",
 		# )
 
+
+DIFFOP_AREAPLOT_NAMES : Dict[str, str] = {
+	'D_0' : 'Central Difference',
+	'D_+' : 'Forward Euler',
+	'D_-' : 'Backward Euler',
+}
+
+def sort_radial(x, y):
+
+    x0 = np.mean(x)
+    y0 = np.mean(y)
+
+    r = np.sqrt((x-x0)**2 + (y-y0)**2)
+
+    angles = np.where((y-y0) > 0, np.arccos((x-x0)/r), 2*np.pi-np.arccos((x-x0)/r))
+
+    mask = np.argsort(angles)
+
+    x_sorted = x[mask]
+    y_sorted = y[mask]
+
+    return x_sorted, y_sorted
+
+
+def plot_stab_region(
+		eigvals : Dict[str, np.ndarray], 
+		cfl : float = 1.0,
+	) -> tuple:
+
+	fig,ax = plt.subplots()
+	for key in DIFFOP_AREAPLOT_NAMES.keys():
+		sorted_eigs : Tuple[np.ndarray, np.ndarray] = sort_radial(
+			eigvals[key].real / cfl,
+			eigvals[key].imag / cfl,
+		)
+		if key == 'D_0':
+			ax.plot(
+				sorted_eigs[0], sorted_eigs[1],
+				'k-',
+				label = DIFFOP_AREAPLOT_NAMES[key],
+			)
+		else:
+
+			ax.fill(
+				sorted_eigs[0], sorted_eigs[1],
+				alpha = 0.2,
+				label = DIFFOP_AREAPLOT_NAMES[key],
+			)
+	ax.set_aspect('equal')
+
+	return fig,ax
+
 def print_eigvals_conditions(
-		egiv : List[Expr], 
+		egival : List[Expr], 
+		grid_size : Expr,
 		sym_solve : Expr = gamma, 
 		indent : str = '',
+		# n_pts_plot : int = 25,
 	) -> None:
 	
-	# print base eigenvalue condition
+	print(f'{indent}- condition on ${latex(gamma)}$ derived from requiring each eigenvalue be less than 1 in abosolute value')
 	print(
 		indent,
 		"$$ ",
-		'\\qquad'.join([ latex(abs(e)) + '\\leq 1' for e in egiv ]),
+		'\\qquad'.join([ latex(abs(e)) + '\\leq 1' for e in egival ]),
 		" $$",
 	)
+
+	print(f'{indent}- substituting ${latex(grid_size)} = 1$')
+	eigval_grid_subs : List[Expr] = [ sym.simplify(e.subs(grid_size, 1)) for e in egival ]
+	print(
+		indent,
+		"$$ ",
+		'\\qquad'.join([ latex(abs(e)) + '\\leq 1' for e in eigval_grid_subs ]),
+		" $$",
+	)
+
+	# print(f'{indent}- solving for ${latex(sym_solve)}$ when eigenvalues are exactly 1')
+	# print(
+	# 	indent,
+	# 	"$$ ",
+	# 	'\\qquad'.join([ latex(e - 1) + '= 0' for e in eigval_grid_subs ]),
+	# 	" $$",
+	# )
+
+
+	# solved_expr : List[Expr] = [ sym.solve(e - 1, sym_solve) for e in eigval_grid_subs ]
+	
+	# print(f'{indent}- solving for ${latex(sym_solve)}$, substituting ${latex(grid_size)} = 1$')
+	# print(
+	# 	indent,
+	# 	"$$ ",
+	# 	'\\qquad'.join([
+	# 		f'{latex(sym_solve)} = ' + latex(e) 
+	# 		for e in solved_expr
+	# 	]),
+	# 	" $$",
+	# )
+
+
+
+	# # generate `n_pts_plot` points satisfying `egival` condition exactly
+	# pts = [
+	# 	sym.solve(
+	# 		sym.Eq(sym_solve, e),
+	# 		sym_solve,
+	# 		dict=True,
+	# 	)[0]['sol']
+
+
+
 
 def stability_eval(diff_ops_eqn : List[str]):
 
@@ -207,8 +314,7 @@ def stability_eval(diff_ops_eqn : List[str]):
 				print(f'   - matrix equation')
 				sln_mat : Matrix = solve_matrix_diffops(soln, solvefor_lst, indent = '    ')
 				sln_mat_eigvals : List[Expr] = sln_mat.eigenvals()
-				print(f'   - condition on ${latex(gamma)}$ derived from requiring each eigenvalue be less than 1 in abosolute value')
-				print_eigvals_conditions(sln_mat_eigvals, indent = '    ')
+				print_eigvals_conditions(sln_mat_eigvals, grid_size = grid_size, indent = '    ')
 
 
 			print('\n')
@@ -216,11 +322,118 @@ def stability_eval(diff_ops_eqn : List[str]):
 
 
 
+MAT_DIFFOP_PLOT_FMT : Dict[str,str] = {
+	'D_0' : '.',
+	'D_+' : '+',
+	'D_-' : 'x',
+	'D_- D_+' : '.',
+	'D_+^2' : '+',
+	'D_-^2' : 'x',
+}
+
+MAT_DIFFOP_BYORDER : Dict[int, Set[str]] = {
+	1 : {'D_0', 'D_+', 'D_-'},
+	2 : {'D_- D_+', 'D_+^2', 'D_-^2'},
+}
+
+def analyze_diffop_matrix(
+		N : int = 5, 
+		num_N : int = 25, 
+		gridsize : float = 1.0,
+	) -> Dict[str, np.ndarray]:
+	
+	_h : Symbol = Symbol('h')
+	output_eigvals : Dict[str, np.ndarray] = dict()
+	for key,matfunc in MATRIX_DIFFOPS.items():
+		
+		mat : Matrix = matfunc(N, _h, True)
+		print(
+			f" - difference operator ${key}$, for $N={N}$:\n",
+			"  $$ ",
+			key,
+			" = ",
+			matrix_to_smallmatrix(latex(mat)),
+			" $$",
+		)
+
+		print(f"   - eigenvalues of ${key}$:\n")
+		eigvals : List[Expr] = set(sym.simplify(e) for e in mat.eigenvals().keys())
+		print(
+			"    $$ _{",
+			latex(eigvals),
+			"} $$",
+		)
+		
+		# print(f"   - numerically computed eigenvalues for ${latex(_h)} = {gridsize}$ and $N = {num_N}$")
+		mat_np : np.ndarray = np.array(matfunc(num_N, gridsize, True)).astype(np.float64)
+		eigvals_np : np.ndarray = np.linalg.eigvals(mat_np)
+		output_eigvals[key] = eigvals_np
+	
+	# plot eigenvalues
+	for diff_order,diff_ops in MAT_DIFFOP_BYORDER.items():
+		for diff_op in diff_ops:
+			plt.plot(
+				output_eigvals[diff_op].real,
+				output_eigvals[diff_op].imag,
+				MAT_DIFFOP_PLOT_FMT[diff_op],
+				label = f"${diff_op}$",
+			)
+	
+		# save image, and print markdown image link
+		filename : str = f"py_img/diffop_eigvals_Ord-{diff_order}_N{N}_{num_N}_h{gridsize}.pdf"
+		plt.axes().set_aspect('equal')
+		plt.legend()
+		plt.savefig(filename)
+		print(f"\n![Eigenvalues for {diff_order}{'st' if diff_order == 1 else 'nd'} order difference operators plotted in the complex plane]({filename})\n")
+		plt.cla()
+		plt.clf()
+
+	return output_eigvals
+		
+
+def stability_plots(
+		order : int,
+		eigvals : Dict[str, np.ndarray],
+		cfl_vals : List[float] = [0.5, 1.0, 3.0],
+	) -> None:
+
+	diff_ops_eqn : List[str] = list(MAT_DIFFOP_BYORDER[order])
+	
+	for cfl in cfl_vals:
+		fig,ax = plot_stab_region(eigvals, cfl)
+		ax.set_xlabel(f"$\\Re {latex(gamma)}$")
+		ax.set_ylabel(f"$\\Im {latex(gamma)}$")
+
+		for diffop in diff_ops_eqn:
+			ax.plot(
+				eigvals[diffop].real,
+				eigvals[diffop].imag,
+				MAT_DIFFOP_PLOT_FMT[diffop],
+				label = f"Eigenvalues of ${diffop}$",
+			)
+		
+		ax.set_title(f"$\\lambda = {cfl}$")
+		
+		filename : str = f"py_img/stabplot_Ord{order}_cfl_{cfl}.pdf"
+		ax.set_aspect('equal')
+		fig.legend()
+		fig.savefig(filename)
+		print(f"\n![Stability plot for difference schemes with $\\lambda = {cfl}$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.]({filename})\n")
+		
+
+
+
 def main():
+	print(r'# difference operator analysis', '\n')
+	eigvals : Dict[str, np.ndarray] = analyze_diffop_matrix(N = 5, num_N = 25)
+	print('\n')
 	print(r'# equation $u_t = - u_x$', '\n')
 	stability_eval(DIFF_FIRSTORDER)
+	stability_plots(1, eigvals)
+	print('\n')
 	print(r'# equation $u_t = u_{xx}$', '\n')
 	stability_eval(DIFF_SECONDORDER)
+	stability_plots(2, eigvals)
 
 if __name__ == '__main__':
 	main()

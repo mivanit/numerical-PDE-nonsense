@@ -109,10 +109,17 @@ def off_diag_mat(N : int, offset : int = 0, val : float = 1, periodic : bool = F
       raise ValueError(f'this is an innacessible state, smh. {N=} {offset=} {val=} {output=} {submat=}')
 
 MATRIX_DIFFOPS : Dict[str, Callable[[int, float], Matrix]] = {
-  '0' : lambda N,h,per=False : (off_diag_mat(N, 1, 1, per) + off_diag_mat(N, -1, -1, per)) / (2 * h),
-  '+' : lambda N,h,per=False : (off_diag_mat(N, 1, 1, per) + off_diag_mat(N, 0, -1, per)) / h,
-  '-' : lambda N,h,per=False : (off_diag_mat(N, 0, 1, per) + off_diag_mat(N, -1, -1, per)) / h,
+  'D_0' : lambda N,h,per=False : (off_diag_mat(N, 1, 1, per) + off_diag_mat(N, -1, -1, per)) / (2 * h),
+  'D_+' : lambda N,h,per=False : (off_diag_mat(N, 1, 1, per) + off_diag_mat(N, 0, -1, per)) / h,
+  'D_-' : lambda N,h,per=False : (off_diag_mat(N, 0, 1, per) + off_diag_mat(N, -1, -1, per)) / h,
+  # second order
+	'D_- D_+' : lambda N,h,per=False : ( 
+      off_diag_mat(N, 1, 1, per) - 2 * off_diag_mat(N, 0, 1, per) + off_diag_mat(N, -1, 1, per) 
+    ) / (h**2),
+	'D_+^2' : lambda N,h,per=False : ( off_diag_mat(N, 2, 1, per) - 2 * off_diag_mat(N, 1, 1, per) + off_diag_mat(N, 0, 1, per) ) / (h**2),
+	'D_-^2' : lambda N,h,per=False : ( off_diag_mat(N, 0, 1, per) - 2 * off_diag_mat(N, -1, 1, per) + off_diag_mat(N, -2, 1, per) ) / (h**2),
 }
+
 
 def theta_eqn_mat_LHS(
     N : int,
@@ -133,8 +140,8 @@ def theta_eqn_mat_LHS(
   return (
     sym.eye(N)
     - theta * Delta_t * (
-      a * MATRIX_DIFFOPS['0'](N, h, per)
-      + eta * MATRIX_DIFFOPS['+'](N, h, per) * MATRIX_DIFFOPS['-'](N, h, per)
+      a * MATRIX_DIFFOPS['D_0'](N, h, per)
+      + eta * MATRIX_DIFFOPS['D_+'](N, h, per) * MATRIX_DIFFOPS['D_-'](N, h, per)
     )
   )
 
@@ -157,8 +164,8 @@ def theta_eqn_mat_RHS(
   return (
     sym.eye(N)
     + (1 - theta) * Delta_t * (
-      a * MATRIX_DIFFOPS['0'](N, h, per)
-      + eta * MATRIX_DIFFOPS['+'](N, h, per) * MATRIX_DIFFOPS['-'](N, h, per)
+      a * MATRIX_DIFFOPS['D_0'](N, h, per)
+      + eta * MATRIX_DIFFOPS['D_+'](N, h, per) * MATRIX_DIFFOPS['D_-'](N, h, per)
     )
   )
 
@@ -229,9 +236,9 @@ def test_matrix_assembly(
     testprinter('diag_moved_down', off_diag_mat(N, -1, 1, periodic = True))
 
     print('**diff ops**\n')
-    testprinter('D_+', MATRIX_DIFFOPS['+'](N, kwdict['h'], per = True))
-    testprinter('D_-', MATRIX_DIFFOPS['-'](N, kwdict['h'], per = True))
-    testprinter('central_diff', MATRIX_DIFFOPS['0'](N, kwdict['h'], per = True))
+    testprinter('D_+', MATRIX_DIFFOPS['D_+'](N, kwdict['h'], per = True))
+    testprinter('D_-', MATRIX_DIFFOPS['D_-'](N, kwdict['h'], per = True))
+    testprinter('central_diff', MATRIX_DIFFOPS['D_0'](N, kwdict['h'], per = True))
 
   print('**theta eqn**\n')
   testprinter('theta_eqn_LHS', theta_eqn_mat_LHS(N, **kwdict))
