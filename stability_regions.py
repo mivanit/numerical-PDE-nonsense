@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.path as mplPath
 
-from theta_scheme_numerics import MATRIX_DIFFOPS
+from theta_scheme_numerics import MATRIX_DIFFOPS,BoundaryCondition,EXPORT_FILE_EXTENSION
 
 
 EPSILON : float = 1e-6
@@ -191,34 +191,49 @@ DIFFOP_AREAPLOT_NAMES : Dict[str, str] = {
 	'D_-' : 'Backward Euler',
 }
 
-def sort_radial(x, y):
+def sort_radial(x, y, remove_center : bool = True) -> np.ndarray:
 
-    x0 = np.mean(x)
-    y0 = np.mean(y)
+	x0 = np.mean(x)
+	y0 = np.mean(y)
 
-    r = np.sqrt((x-x0)**2 + (y-y0)**2)
+	center = np.array([x0, y0])
 
-    angles = np.where((y-y0) > 0, np.arccos((x-x0)/r), 2*np.pi-np.arccos((x-x0)/r))
+	r = np.sqrt((x-x0)**2 + (y-y0)**2)
 
-    mask = np.argsort(angles)
+	angles = np.where((y-y0) > 0, np.arccos((x-x0)/r), 2*np.pi-np.arccos((x-x0)/r))
 
-    x_sorted = x[mask]
-    y_sorted = y[mask]
+	mask = np.argsort(angles)
 
-    return x_sorted, y_sorted
+	x_sorted = x[mask]
+	y_sorted = y[mask]
+
+	sorted_points = np.array([x_sorted, y_sorted])
+
+	if remove_center:
+		# remove any point that is within `EPSILON` of the center
+		mask = [
+			np.linalg.norm(pt - center) > 0.1 * np.mean(r)
+			for pt in sorted_points.T
+		]
+		sorted_points = sorted_points[:,mask]
+
+	return sorted_points
 
 
 def plot_stab_region(
 		eigvals : Dict[str, np.ndarray], 
 		cfl : float = 1.0,
+		remove_center : bool = True,
 	) -> tuple:
 
 	fig,ax = plt.subplots()
 	for key in DIFFOP_AREAPLOT_NAMES.keys():
-		sorted_eigs : Tuple[np.ndarray, np.ndarray] = sort_radial(
+		sorted_eigs : np.ndarray = np.array(sort_radial(
 			eigvals[key].real / cfl,
 			eigvals[key].imag / cfl,
-		)
+			remove_center = remove_center,
+		))
+
 		if key == 'D_0':
 			ax.plot(
 				sorted_eigs[0], sorted_eigs[1],
@@ -438,6 +453,14 @@ def stability_eval(diff_ops_eqn : List[str]):
 			print('\n')
 
 
+BDRY_CONDITIONS_FOR_DIFF_OPS : Dict[str, BoundaryCondition] = {
+	'D_0' : 'periodic',
+	'D_+' : 'periodic',
+	'D_-' : 'periodic',
+	'D_- D_+' : 'dirichlet',
+	'D_+^2' : 'dirichlet',
+	'D_-^2' : 'dirichlet',
+}
 
 
 def analyze_diffop_matrix(
@@ -449,10 +472,10 @@ def analyze_diffop_matrix(
 	_h : Symbol = Symbol('h')
 	output_eigvals : Dict[str, np.ndarray] = dict()
 	for key,matfunc in MATRIX_DIFFOPS.items():
-		
-		mat : Matrix = matfunc(N, _h, True)
+		bdry : BoundaryCondition = BDRY_CONDITIONS_FOR_DIFF_OPS[key]
+		mat : Matrix = matfunc(N, _h, bdry)
 		print(
-			f" - difference operator ${key}$, for $N={N}$:\n",
+			f" - difference operator ${key}$, for $N={N}$, width {bdry} boundary conditions:\n",
 			"  $$ ",
 			key,
 			" = ",
@@ -469,7 +492,7 @@ def analyze_diffop_matrix(
 		)
 		
 		# print(f"   - numerically computed eigenvalues for ${latex(_h)} = {gridsize}$ and $N = {num_N}$")
-		mat_np : np.ndarray = np.array(matfunc(num_N, gridsize, True)).astype(np.float64)
+		mat_np : np.ndarray = np.array(matfunc(num_N, gridsize, bdry)).astype(np.float64)
 		eigvals_np : np.ndarray = np.linalg.eigvals(mat_np)
 		output_eigvals[key] = eigvals_np
 	
@@ -484,7 +507,7 @@ def analyze_diffop_matrix(
 			)
 	
 		# save image, and print markdown image link
-		filename : str = f"py_img/diffop_eigvals_Ord-{diff_order}_N{N}_{num_N}_h{gridsize}.pdf"
+		filename : str = f"py_img/diffop_eigvals_Ord-{diff_order}_N{N}_{num_N}_h{gridsize}.{EXPORT_FILE_EXTENSION}"
 		plt.axes().set_aspect('equal')
 		plt.legend()
 		plt.savefig(filename)
@@ -518,7 +541,7 @@ def stability_plots(
 		
 		ax.set_title(f"$\\lambda = {cfl}$")
 		
-		filename : str = f"py_img/stabplot_Ord{order}_cfl_{cfl}.pdf"
+		filename : str = f"py_img/stabplot_Ord{order}_cfl_{cfl}.{EXPORT_FILE_EXTENSION}"
 		ax.set_aspect('equal')
 		fig.legend()
 		fig.savefig(filename)

@@ -18,6 +18,8 @@ from pydbg import dbg
 # sys.path.append('../')
 # from util import *
 
+EXPORT_FILE_EXTENSION : str = 'png'
+
 def raise_ValueError(msg : str) -> None:
   raise ValueError(msg)
 
@@ -35,9 +37,11 @@ Numerical = Union[float, int, sym.Symbol]
 
 BoundaryCondition = Literal[
   'periodic', # set endpoints equal to each other (None)
-  'explicit', # provide explicit solution to use for endpoints (Callable)
+  'periodic-naive', # fill in corners - but this is wrong!
   'dirichlet', # TODO
-  'neumann', # TODO
+  None,
+  # 'explicit', # provide explicit solution to use for endpoints (Callable)
+  # 'neumann', # TODO
 ]
 
 BCparam = NamedTuple('BCparam', [
@@ -99,7 +103,7 @@ def dict_to_filename(
   
   return delim_items.join(output)
 
-def off_diag_mat(N : int, offset : int = 0, val : float = 1, periodic : bool = False) -> Matrix:
+def off_diag_mat(N : int, offset : int = 0, val : float = 1, bdry : BoundaryCondition = None) -> Matrix:
   """generates a square matrix with elements on an off-diagonal
   
   ### Parameters:
@@ -111,10 +115,9 @@ def off_diag_mat(N : int, offset : int = 0, val : float = 1, periodic : bool = F
    - `val : float`   
      value of off-diagonal elements
      (defaults to `1`)
-   - `periodic : bool`   
-     whether to fill in the opposite corner of the matrix
-     NOTE: THIS BEHAVES SUPER WEIRDLYYYY
-     (defaults to `False`)
+   - `bdry : BoundaryCondition`
+      boundary condition to apply to the matrix. if dirichlet, assumed to be zero
+      (defaults to `None`)
   
   ### Returns:
    - `Matrix` 
@@ -130,40 +133,61 @@ def off_diag_mat(N : int, offset : int = 0, val : float = 1, periodic : bool = F
     output : Matrix = sym.zeros(N, N)
     submat : Matrix = val * sym.eye(N - abs(offset))
     submat_per : Matrix = val * sym.eye(abs(offset))
+    zero_col : Matrix = sym.zeros(N, 1)
 
     if offset < 0:
       offset = abs(offset)
 
       output[offset:, :-offset] = submat
 
-      if periodic:
-        output[offset-1, -offset-1] = submat_per
-        # output[:offset, -offset:] = submat_per
+      if bdry is not None:
+        if bdry == 'periodic':
+          output[offset-1, -offset-1] = submat_per
+        elif bdry == 'periodic-naive':
+          output[:offset, -offset:] = submat_per
+        elif bdry == 'dirichlet':
+          output[offset-1, -offset-1] = submat_per
+          output[:, 0] = zero_col
+          output[:, -1] = zero_col
+        else:
+          raise ValueError(f'invalid boundary condition: {bdry}')
 
       return output
 
     elif offset > 0:
       output[:-offset,offset:] = submat
 
-      if periodic:
-        output[-offset, offset] = submat_per
-        # output[-offset:, :offset] = submat_per
+      if bdry is not None:
+        if bdry == 'periodic':
+          output[-offset, offset] = submat_per
+        elif bdry == 'periodic-naive':
+          output[-offset:, :offset] = submat_per
+        elif bdry == 'dirichlet':
+          output[offset-1, -offset-1] = submat_per
+          output[:, 0] = zero_col
+          output[:, -1] = zero_col
+        else:
+          raise ValueError(f'invalid boundary condition: {bdry}')
+
 
       return output
 
     else:
       raise ValueError(f'this is an innacessible state, smh. {N=} {offset=} {val=} {output=} {submat=}')
 
-MATRIX_DIFFOPS : Dict[str, Callable[[int, float], Matrix]] = {
-  'D_0' : lambda N,h,per=False : (off_diag_mat(N, 1, 1, per) + off_diag_mat(N, -1, -1, per)) / (2 * h),
-  'D_+' : lambda N,h,per=False : (off_diag_mat(N, 1, 1, per) + off_diag_mat(N, 0, -1, per)) / h,
-  'D_-' : lambda N,h,per=False : (off_diag_mat(N, 0, 1, per) + off_diag_mat(N, -1, -1, per)) / h,
+MATRIX_DIFFOPS : Dict[str, Callable[[int, float, BoundaryCondition], Matrix]] = {
+  'D_0' : lambda N,h,bdry=None : (off_diag_mat(N, 1, 1, bdry) + off_diag_mat(N, -1, -1, bdry)) / (2 * h),
+  'D_+' : lambda N,h,bdry=None : (off_diag_mat(N, 1, 1, bdry) + off_diag_mat(N, 0, -1, bdry)) / h,
+  'D_-' : lambda N,h,bdry=None : (off_diag_mat(N, 0, 1, bdry) + off_diag_mat(N, -1, -1, bdry)) / h,
   # second order
-  'D_- D_+' : lambda N,h,per=False : ( 
-      off_diag_mat(N, 1, 1, per) - 2 * off_diag_mat(N, 0, 1, per) + off_diag_mat(N, -1, 1, per) 
+  'D_- D_+' : lambda N,h,bdry=None : ( 
+      off_diag_mat(N, -1, 1, bdry) - 2 * off_diag_mat(N, 0, 1, bdry) + off_diag_mat(N, 1, 1, bdry) 
     ) / (h**2),
-  'D_+^2' : lambda N,h,per=False : ( off_diag_mat(N, 2, 1, per) - 2 * off_diag_mat(N, 1, 1, per) + off_diag_mat(N, 0, 1, per) ) / (h**2),
-  'D_-^2' : lambda N,h,per=False : ( off_diag_mat(N, 0, 1, per) - 2 * off_diag_mat(N, -1, 1, per) + off_diag_mat(N, -2, 1, per) ) / (h**2),
+  'D_+^2' : lambda N,h,bdry=None : ( off_diag_mat(N, 2, 1, bdry) - 2 * off_diag_mat(N, 1, 1, bdry) + off_diag_mat(N, 0, 1, bdry) ) / (h**2),
+  'D_-^2' : lambda N,h,bdry=None : ( off_diag_mat(N, 0, 1, bdry) - 2 * off_diag_mat(N, -1, 1, bdry) + off_diag_mat(N, -2, 1, bdry) ) / (h**2),
+  # 'D_+ D_-' : lambda N,h,bdry=None : ( 
+  #     off_diag_mat(N, 1, 1, bdry) - 2 * off_diag_mat(N, 0, 1, bdry) + off_diag_mat(N, -1, 1, bdry) 
+  #   ) / (h**2),
 }
 
 
@@ -181,13 +205,13 @@ def theta_eqn_mat_LHS(
   $$ ( I - \Theta \Delta_t ( a D_0 + \eta D_+ D_- ) ) $$
   """
   
-  per : bool =  BC.type == 'periodic'
+  bdry : BoundaryCondition = BC.type
 
   return (
     sym.eye(N)
     - theta * Delta_t * (
-      - a * MATRIX_DIFFOPS['D_0'](N, h, per)
-      + eta * MATRIX_DIFFOPS['D_- D_+'](N, h, per)
+      - a * MATRIX_DIFFOPS['D_0'](N, h, bdry)
+      + eta * MATRIX_DIFFOPS['D_- D_+'](N, h, bdry)
     )
   )
 
@@ -205,13 +229,13 @@ def theta_eqn_mat_RHS(
   $$ ( I + (1 - \Theta) \Delta_t ( a D_0 + \eta D_+ D_- ) ) $$
   """
 
-  per : bool =  BC.type == 'periodic'
+  bdry : BoundaryCondition = BC.type
 
   return (
     sym.eye(N)
     + (1 - theta) * Delta_t * (
-      - a * MATRIX_DIFFOPS['D_0'](N, h, per)
-      + eta * MATRIX_DIFFOPS['D_- D_+'](N, h, per)
+      - a * MATRIX_DIFFOPS['D_0'](N, h, bdry)
+      + eta * MATRIX_DIFFOPS['D_- D_+'](N, h, bdry)
     )
   )
 
@@ -291,10 +315,10 @@ def test_matrix_assembly(
     # matrixprinter('negative off_diagonal', off_diag_mat(N, -1, 1, periodic = True))
 
     print('**diff ops**\n')
-    matrixprinter('$D_+$', MATRIX_DIFFOPS['D_+'](N,_h, per = True), 1/_h)
-    matrixprinter('$D_-$', MATRIX_DIFFOPS['D_-'](N,_h, per = True), 1/_h)
-    matrixprinter('$D_0$', MATRIX_DIFFOPS['D_0'](N,_h, per = True), 2 * 1/_h)
-    matrixprinter('$D_- D_+$', MATRIX_DIFFOPS['D_- D_+'](N,_h, per = True), 1/_h**2)
+    matrixprinter('$D_+$', MATRIX_DIFFOPS['D_+'](N,_h, bdry = 'periodic'), 1/_h)
+    matrixprinter('$D_-$', MATRIX_DIFFOPS['D_-'](N,_h, bdry = 'periodic'), 1/_h)
+    matrixprinter('$D_0$', MATRIX_DIFFOPS['D_0'](N,_h, bdry = 'periodic'), 2 * 1/_h)
+    matrixprinter('$D_- D_+$', MATRIX_DIFFOPS['D_- D_+'](N,_h, bdry = 'periodic'), 1/_h**2)
 
   print('**theta eqn**\n')
   theta_factor_lhs : Expr = CONSTS['Delta_t'] * CONSTS['theta'] / (_h ** 2)
@@ -496,7 +520,7 @@ def run(
     'eta' : scheme_kwargs.get('eta', None),
   }
   if isinstance(plot, bool):
-    filename : str = f'py_img/theta_scheme/{mat_generator.__name__}_{dict_to_filename(fname_params_dict)}.png'
+    filename : str = f'py_img/theta_scheme/{mat_generator.__name__}_{dict_to_filename(fname_params_dict)}.{EXPORT_FILE_EXTENSION}'
   elif isinstance(plot, str):
     filename = str(plot)
   else:
@@ -617,7 +641,7 @@ def oldmain():
             bounds = bounds,
             alpha = alpha,
             t_final = t_final,
-            plot = f'py_img/{scheme_name}_{ic_key}_a{alpha:.2}_Tf{t_final:.3}.png',
+            plot = f'py_img/{scheme_name}_{ic_key}_a{alpha:.2}_Tf{t_final:.3}.{EXPORT_FILE_EXTENSION}',
             print_table = print_table,
           )
 
@@ -631,7 +655,7 @@ def oldmain():
         plt.legend()
         plt.xlabel(r'$\log_{10} (N)$ gridpoints')
         plt.ylabel(r'$\log_{10} (e)$ error')
-        filename_log_errs : str = f'py_img/{scheme_name}_{ic_key}_a{alpha:.2}_log-errs.png'
+        filename_log_errs : str = f'py_img/{scheme_name}_{ic_key}_a{alpha:.2}_log-errs.{EXPORT_FILE_EXTENSION}'
         plt.savefig(filename_log_errs)
         plt.clf()
         plt.cla()

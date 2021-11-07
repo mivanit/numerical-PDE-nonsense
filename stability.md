@@ -1,40 +1,40 @@
 # difference operator analysis 
 
- - difference operator $D_0$, for $N=5$:
-   $$  D_0  =  \left[\begin{smallmatrix}0 & \frac{1}{2 h} & 0 & 0 & - \frac{1}{2 h}\\- \frac{1}{2 h} & 0 & \frac{1}{2 h} & 0 & 0\\0 & - \frac{1}{2 h} & 0 & \frac{1}{2 h} & 0\\0 & 0 & - \frac{1}{2 h} & 0 & \frac{1}{2 h}\\\frac{1}{2 h} & 0 & 0 & - \frac{1}{2 h} & 0\end{smallmatrix}\right]  $$
+ - difference operator $D_0$, for $N=5$, width periodic boundary conditions:
+   $$  D_0  =  \left[\begin{smallmatrix}0 & \frac{1}{2 h} & 0 & - \frac{1}{2 h} & 0\\- \frac{1}{2 h} & 0 & \frac{1}{2 h} & 0 & 0\\0 & - \frac{1}{2 h} & 0 & \frac{1}{2 h} & 0\\0 & 0 & - \frac{1}{2 h} & 0 & \frac{1}{2 h}\\0 & \frac{1}{2 h} & 0 & - \frac{1}{2 h} & 0\end{smallmatrix}\right]  $$
    - eigenvalues of $D_0$:
 
-    $$ _{ \left\{0, \frac{\sqrt{-10 - 2 \sqrt{5}}}{4 h}, \frac{\sqrt{-10 + 2 \sqrt{5}}}{4 h}, - \frac{i \sqrt{10 - 2 \sqrt{5}}}{4 h}, - \frac{i \sqrt{2 \sqrt{5} + 10}}{4 h}\right\} } $$
- - difference operator $D_+$, for $N=5$:
-   $$  D_+  =  \left[\begin{smallmatrix}- \frac{1}{h} & \frac{1}{h} & 0 & 0 & 0\\0 & - \frac{1}{h} & \frac{1}{h} & 0 & 0\\0 & 0 & - \frac{1}{h} & \frac{1}{h} & 0\\0 & 0 & 0 & - \frac{1}{h} & \frac{1}{h}\\\frac{1}{h} & 0 & 0 & 0 & - \frac{1}{h}\end{smallmatrix}\right]  $$
+    $$ _{ \left\{0, - \frac{i}{h}, \frac{i}{h}\right\} } $$
+ - difference operator $D_+$, for $N=5$, width periodic boundary conditions:
+   $$  D_+  =  \left[\begin{smallmatrix}- \frac{1}{h} & \frac{1}{h} & 0 & 0 & 0\\0 & - \frac{1}{h} & \frac{1}{h} & 0 & 0\\0 & 0 & - \frac{1}{h} & \frac{1}{h} & 0\\0 & 0 & 0 & - \frac{1}{h} & \frac{1}{h}\\0 & \frac{1}{h} & 0 & 0 & - \frac{1}{h}\end{smallmatrix}\right]  $$
    - eigenvalues of $D_+$:
 
-    $$ _{ \left\{0, \frac{-5 - \sqrt{5} + \sqrt{2} \sqrt{-5 + \sqrt{5}}}{4 h}, \frac{-5 + \sqrt{5} - \sqrt{2} \sqrt{-5 - \sqrt{5}}}{4 h}, \frac{-5 + \sqrt{5} + \sqrt{2} \sqrt{-5 - \sqrt{5}}}{4 h}, - \frac{\sqrt{5} + 5 + \sqrt{2} i \sqrt{5 - \sqrt{5}}}{4 h}\right\} } $$
- - difference operator $D_-$, for $N=5$:
-   $$  D_-  =  \left[\begin{smallmatrix}\frac{1}{h} & 0 & 0 & 0 & - \frac{1}{h}\\- \frac{1}{h} & \frac{1}{h} & 0 & 0 & 0\\0 & - \frac{1}{h} & \frac{1}{h} & 0 & 0\\0 & 0 & - \frac{1}{h} & \frac{1}{h} & 0\\0 & 0 & 0 & - \frac{1}{h} & \frac{1}{h}\end{smallmatrix}\right]  $$
+    $$ _{ \left\{0, - \frac{2}{h}, - \frac{1}{h}, \frac{-1 + i}{h}, - \frac{1 + i}{h}\right\} } $$
+ - difference operator $D_-$, for $N=5$, width periodic boundary conditions:
+   $$  D_-  =  \left[\begin{smallmatrix}\frac{1}{h} & 0 & 0 & - \frac{1}{h} & 0\\- \frac{1}{h} & \frac{1}{h} & 0 & 0 & 0\\0 & - \frac{1}{h} & \frac{1}{h} & 0 & 0\\0 & 0 & - \frac{1}{h} & \frac{1}{h} & 0\\0 & 0 & 0 & - \frac{1}{h} & \frac{1}{h}\end{smallmatrix}\right]  $$
    - eigenvalues of $D_-$:
 
-    $$ _{ \left\{0, \frac{- \sqrt{5} + 5 - \sqrt{2} \sqrt{-5 - \sqrt{5}}}{4 h}, \frac{- \sqrt{5} + 5 + \sqrt{2} \sqrt{-5 - \sqrt{5}}}{4 h}, \frac{\sqrt{5} + 5 - \sqrt{2} \sqrt{-5 + \sqrt{5}}}{4 h}, \frac{\sqrt{5} + 5 + \sqrt{2} \sqrt{-5 + \sqrt{5}}}{4 h}\right\} } $$
- - difference operator $D_- D_+$, for $N=5$:
-   $$  D_- D_+  =  \left[\begin{smallmatrix}- \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0 & 0 & \frac{1}{h^{2}}\\\frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0 & 0\\0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0\\0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}}\\\frac{1}{h^{2}} & 0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}}\end{smallmatrix}\right]  $$
+    $$ _{ \left\{0, \frac{1}{h}, \frac{2}{h}, \frac{1 - i}{h}, \frac{1 + i}{h}\right\} } $$
+ - difference operator $D_- D_+$, for $N=5$, width dirichlet boundary conditions:
+   $$  D_- D_+  =  \left[\begin{smallmatrix}- \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0 & \frac{2}{h^{2}} & 0\\0 & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0 & 0\\0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0\\0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & 0\\0 & 0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}}\end{smallmatrix}\right]  $$
    - eigenvalues of $D_- D_+$:
 
-    $$ _{ \left\{0, \frac{-5 + \sqrt{5}}{2 h^{2}}, - \frac{\sqrt{5} + 5}{2 h^{2}}\right\} } $$
- - difference operator $D_+^2$, for $N=5$:
-   $$  D_+^2  =  \left[\begin{smallmatrix}\frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0 & 0\\0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0\\0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}}\\\frac{1}{h^{2}} & 0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}}\\- \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0 & 0 & \frac{1}{h^{2}}\end{smallmatrix}\right]  $$
+    $$ _{ \left\{- \frac{2}{h^{2}}, \frac{-2 + \sqrt{2}}{h^{2}}, - \frac{\sqrt{2} + 2}{h^{2}}\right\} } $$
+ - difference operator $D_+^2$, for $N=5$, width dirichlet boundary conditions:
+   $$  D_+^2  =  \left[\begin{smallmatrix}\frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & 0\\0 & \frac{1}{h^{2}} & - \frac{1}{h^{2}} & 0 & 0\\0 & 0 & \frac{1}{h^{2}} & - \frac{1}{h^{2}} & 0\\0 & 0 & 0 & \frac{1}{h^{2}} & 0\\0 & 0 & 0 & 0 & \frac{1}{h^{2}}\end{smallmatrix}\right]  $$
    - eigenvalues of $D_+^2$:
 
-    $$ _{ \left\{0, \frac{5 + 3 \sqrt{5} - \sqrt{10} \sqrt{-5 - \sqrt{5}}}{4 h^{2}}, \frac{5 + 3 \sqrt{5} + \sqrt{10} \sqrt{-5 - \sqrt{5}}}{4 h^{2}}, \frac{- 3 \sqrt{5} + 5 - \sqrt{10} \sqrt{-5 + \sqrt{5}}}{4 h^{2}}, \frac{- 3 \sqrt{5} + 5 + \sqrt{10} \sqrt{-5 + \sqrt{5}}}{4 h^{2}}\right\} } $$
- - difference operator $D_-^2$, for $N=5$:
-   $$  D_-^2  =  \left[\begin{smallmatrix}\frac{1}{h^{2}} & 0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}}\\- \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0 & 0 & \frac{1}{h^{2}}\\\frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0 & 0\\0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0\\0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}}\end{smallmatrix}\right]  $$
+    $$ _{ \left\{\frac{1}{h^{2}}\right\} } $$
+ - difference operator $D_-^2$, for $N=5$, width dirichlet boundary conditions:
+   $$  D_-^2  =  \left[\begin{smallmatrix}\frac{1}{h^{2}} & 0 & 0 & - \frac{2}{h^{2}} & 0\\0 & \frac{1}{h^{2}} & \frac{1}{h^{2}} & 0 & 0\\0 & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & \frac{1}{h^{2}} & 0\\0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0\\0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}}\end{smallmatrix}\right]  $$
    - eigenvalues of $D_-^2$:
 
-    $$ _{ \left\{0, \frac{5 + 3 \sqrt{5} - \sqrt{10} \sqrt{-5 - \sqrt{5}}}{4 h^{2}}, \frac{5 + 3 \sqrt{5} + \sqrt{10} \sqrt{-5 - \sqrt{5}}}{4 h^{2}}, \frac{- 3 \sqrt{5} + 5 - \sqrt{10} \sqrt{-5 + \sqrt{5}}}{4 h^{2}}, \frac{- 3 \sqrt{5} + 5 + \sqrt{10} \sqrt{-5 + \sqrt{5}}}{4 h^{2}}\right\} } $$
+    $$ _{ \left\{\frac{1}{h^{2}}, \frac{\frac{8 \sqrt[3]{18}}{3} + \frac{\left(1 - \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}} \left(12 + \left(-1 + \sqrt{3} i\right) \sqrt[3]{108 + 12 \sqrt{849}}\right)}{12}}{h^{2} \left(1 - \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}}}, \frac{\frac{8 \sqrt[3]{18}}{3} - \frac{\left(-12 + \left(1 + \sqrt{3} i\right) \sqrt[3]{108 + 12 \sqrt{849}}\right) \left(1 + \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}}}{12}}{h^{2} \left(1 + \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}}}, - \frac{4 \sqrt[3]{18}}{3 h^{2} \sqrt[3]{9 + \sqrt{849}}} + \frac{1}{h^{2}} + \frac{\sqrt[3]{108 + 12 \sqrt{849}}}{6 h^{2}}\right\} } $$
 
-![Eigenvalues for 1st order difference operators plotted in the complex plane](py_img/diffop_eigvals_Ord-1_N5_25_h1.0.pdf)
+![Eigenvalues for 1st order difference operators plotted in the complex plane](py_img/diffop_eigvals_Ord-1_N5_25_h1.0.png)
 
 
-![Eigenvalues for 2nd order difference operators plotted in the complex plane](py_img/diffop_eigvals_Ord-2_N5_25_h1.0.pdf)
+![Eigenvalues for 2nd order difference operators plotted in the complex plane](py_img/diffop_eigvals_Ord-2_N5_25_h1.0.png)
 
 
 
@@ -103,39 +103,39 @@
 
 
 
-![Stability plot for difference schemes with $\lambda = 0.5$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord1_cfl_0.5.pdf)
+![Stability plot for difference schemes with $\lambda = 0.5$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord1_cfl_0.5.png)
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_-$ & $D_+$ & $D_0$\\ 
+  & $D_0$ & $D_+$ & $D_-$\\ 
 \hline
-Central Difference & Unstable & Unstable & Stable\\ 
-Forward Euler & Unstable & Stable & Unstable\\ 
-Backward Euler & Unstable & Stable & Stable\\ 
+Central Difference & Stable & Unstable & Unstable\\ 
+Forward Euler & Unstable & Unstable & Unstable\\ 
+Backward Euler & Stable & Stable & Unstable\\ 
 \end{tabular}
  \end{center} 
  \caption{ Stability of schemes and difference operators for $\lambda = 0.5$ } 
  \end{table}
 
-![Stability plot for difference schemes with $\lambda = 1.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord1_cfl_1.0.pdf)
+![Stability plot for difference schemes with $\lambda = 1.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord1_cfl_1.0.png)
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_-$ & $D_+$ & $D_0$\\ 
+  & $D_0$ & $D_+$ & $D_-$\\ 
 \hline
-Central Difference & Unstable & Unstable & Stable\\ 
+Central Difference & Unstable & Unstable & Unstable\\ 
 Forward Euler & Unstable & Unstable & Unstable\\ 
-Backward Euler & Unstable & Stable & Stable\\ 
+Backward Euler & Stable & Stable & Unstable\\ 
 \end{tabular}
  \end{center} 
  \caption{ Stability of schemes and difference operators for $\lambda = 1.0$ } 
  \end{table}
 
-![Stability plot for difference schemes with $\lambda = 3.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord1_cfl_3.0.pdf)
+![Stability plot for difference schemes with $\lambda = 3.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord1_cfl_3.0.png)
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_-$ & $D_+$ & $D_0$\\ 
+  & $D_0$ & $D_+$ & $D_-$\\ 
 \hline
 Central Difference & Unstable & Unstable & Unstable\\ 
 Forward Euler & Unstable & Unstable & Unstable\\ 
@@ -227,42 +227,42 @@ Backward Euler & Stable & Stable & Stable\\
 
 
 
-![Stability plot for difference schemes with $\lambda = 0.5$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord2_cfl_0.5.pdf)
+![Stability plot for difference schemes with $\lambda = 0.5$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord2_cfl_0.5.png)
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_+^2$ & $D_-^2$ & $D_- D_+$\\ 
+  & $D_-^2$ & $D_- D_+$ & $D_+^2$\\ 
 \hline
-Central Difference & Unstable & Unstable & Unstable\\ 
-Forward Euler & Unstable & Unstable & Unstable\\ 
-Backward Euler & Stable & Stable & Stable\\ 
+Central Difference & Unstable & Unstable & Stable\\ 
+Forward Euler & Unstable & Stable & Stable\\ 
+Backward Euler & Unstable & Stable & Stable\\ 
 \end{tabular}
  \end{center} 
  \caption{ Stability of schemes and difference operators for $\lambda = 0.5$ } 
  \end{table}
 
-![Stability plot for difference schemes with $\lambda = 1.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord2_cfl_1.0.pdf)
+![Stability plot for difference schemes with $\lambda = 1.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord2_cfl_1.0.png)
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_+^2$ & $D_-^2$ & $D_- D_+$\\ 
+  & $D_-^2$ & $D_- D_+$ & $D_+^2$\\ 
 \hline
-Central Difference & Unstable & Unstable & Unstable\\ 
-Forward Euler & Unstable & Unstable & Unstable\\ 
+Central Difference & Unstable & Unstable & Stable\\ 
+Forward Euler & Unstable & Unstable & Stable\\ 
 Backward Euler & Stable & Stable & Stable\\ 
 \end{tabular}
  \end{center} 
  \caption{ Stability of schemes and difference operators for $\lambda = 1.0$ } 
  \end{table}
 
-![Stability plot for difference schemes with $\lambda = 3.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord2_cfl_3.0.pdf)
+![Stability plot for difference schemes with $\lambda = 3.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord2_cfl_3.0.png)
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_+^2$ & $D_-^2$ & $D_- D_+$\\ 
+  & $D_-^2$ & $D_- D_+$ & $D_+^2$\\ 
 \hline
-Central Difference & Unstable & Unstable & Unstable\\ 
-Forward Euler & Unstable & Unstable & Unstable\\ 
+Central Difference & Unstable & Unstable & Stable\\ 
+Forward Euler & Unstable & Unstable & Stable\\ 
 Backward Euler & Stable & Stable & Stable\\ 
 \end{tabular}
  \end{center} 
