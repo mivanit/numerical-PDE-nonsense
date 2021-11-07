@@ -9,7 +9,7 @@ import sys
 import os
 
 import sympy as sym
-from sympy import Matrix,latex
+from sympy import Matrix,latex,exp,Expr
 import numpy as np
 from nptyping import NDArray
 import matplotlib.pyplot as plt
@@ -113,6 +113,7 @@ def off_diag_mat(N : int, offset : int = 0, val : float = 1, periodic : bool = F
      (defaults to `1`)
    - `periodic : bool`   
      whether to fill in the opposite corner of the matrix
+     NOTE: THIS BEHAVES SUPER WEIRDLYYYY
      (defaults to `False`)
   
   ### Returns:
@@ -136,7 +137,8 @@ def off_diag_mat(N : int, offset : int = 0, val : float = 1, periodic : bool = F
       output[offset:, :-offset] = submat
 
       if periodic:
-        output[:offset, -offset:] = submat_per
+        output[offset-1, -offset-1] = submat_per
+        # output[:offset, -offset:] = submat_per
 
       return output
 
@@ -144,7 +146,8 @@ def off_diag_mat(N : int, offset : int = 0, val : float = 1, periodic : bool = F
       output[:-offset,offset:] = submat
 
       if periodic:
-        output[-offset:, :offset] = submat_per
+        output[-offset, offset] = submat_per
+        # output[-offset:, :offset] = submat_per
 
       return output
 
@@ -183,8 +186,8 @@ def theta_eqn_mat_LHS(
   return (
     sym.eye(N)
     - theta * Delta_t * (
-      a * MATRIX_DIFFOPS['D_0'](N, h, per)
-      + eta * MATRIX_DIFFOPS['D_+'](N, h, per) * MATRIX_DIFFOPS['D_-'](N, h, per)
+      - a * MATRIX_DIFFOPS['D_0'](N, h, per)
+      + eta * MATRIX_DIFFOPS['D_- D_+'](N, h, per)
     )
   )
 
@@ -207,8 +210,8 @@ def theta_eqn_mat_RHS(
   return (
     sym.eye(N)
     + (1 - theta) * Delta_t * (
-      a * MATRIX_DIFFOPS['D_0'](N, h, per)
-      + eta * MATRIX_DIFFOPS['D_+'](N, h, per) * MATRIX_DIFFOPS['D_-'](N, h, per)
+      - a * MATRIX_DIFFOPS['D_0'](N, h, per)
+      + eta * MATRIX_DIFFOPS['D_- D_+'](N, h, per)
     )
   )
 
@@ -256,6 +259,13 @@ def theta_scheme_eqn(
 def testprinter(name : str, expr : sym.Expr) -> None:
   print(f'{name}:\n$$ {latex(expr)} $$\n')
 
+def matrixprinter(name : str, expr : sym.Expr, factorout : Optional[Expr] = None) -> None:
+  if factorout is not None:
+    expr = sym.simplify(expr / factorout)
+    print(f'{name}:\n$$ {latex(factorout)} {latex(expr)} $$\n'.replace(r'{matrix}', r'{smallmatrix}'))
+  else:
+    print(f'{name}:\n$$ {latex(expr)} $$\n'.replace(r'{matrix}', r'{smallmatrix}'))
+
 def test_matrix_assembly(
     N : int, 
     onlytheta : bool = True,
@@ -272,22 +282,38 @@ def test_matrix_assembly(
     **kwargs,
   }
 
+  _h = kwdict['h']
+
   if not onlytheta:
-    print('**basics**\n')
-    testprinter('identity', off_diag_mat(N, 0, 1))
-    testprinter('diag_moved_up', off_diag_mat(N, 1, 1, periodic = True))
-    testprinter('diag_moved_down', off_diag_mat(N, -1, 1, periodic = True))
+    # print('**basics**\n')
+    # matrixprinter('identity', off_diag_mat(N, 0, 1))
+    # matrixprinter('positive off-diagonal', off_diag_mat(N, 1, 1, periodic = True))
+    # matrixprinter('negative off_diagonal', off_diag_mat(N, -1, 1, periodic = True))
 
     print('**diff ops**\n')
-    testprinter('D_+', MATRIX_DIFFOPS['D_+'](N, kwdict['h'], per = True))
-    testprinter('D_-', MATRIX_DIFFOPS['D_-'](N, kwdict['h'], per = True))
-    testprinter('central_diff', MATRIX_DIFFOPS['D_0'](N, kwdict['h'], per = True))
+    matrixprinter('$D_+$', MATRIX_DIFFOPS['D_+'](N,_h, per = True), 1/_h)
+    matrixprinter('$D_-$', MATRIX_DIFFOPS['D_-'](N,_h, per = True), 1/_h)
+    matrixprinter('$D_0$', MATRIX_DIFFOPS['D_0'](N,_h, per = True), 2 * 1/_h)
+    matrixprinter('$D_- D_+$', MATRIX_DIFFOPS['D_- D_+'](N,_h, per = True), 1/_h**2)
 
   print('**theta eqn**\n')
-  testprinter('theta_eqn_LHS', theta_eqn_mat_LHS(N, **kwdict))
-  testprinter('theta_eqn_RHS', theta_eqn_mat_RHS(N, **kwdict))
+  theta_factor_lhs : Expr = CONSTS['Delta_t'] * CONSTS['theta'] / (_h ** 2)
+  theta_factor_rhs : Expr = CONSTS['Delta_t']
+  if (kwdict['a'] == 1) and (kwdict['eta'] == 0):
+    theta_factor_lhs = None
+    theta_factor_rhs = None
+  if (kwdict['a'] == 0) and (kwdict['eta'] == 1):
+    theta_factor_lhs = CONSTS['Delta_t'] * CONSTS['theta']
+    theta_factor_rhs = CONSTS['Delta_t']
+  if (kwdict['a'] == 1) and (kwdict['eta'] == 1):
+    theta_factor_lhs = CONSTS['Delta_t'] * CONSTS['theta']
+    theta_factor_rhs = CONSTS['Delta_t']
+    
+
+  matrixprinter('theta scheme, LHS', theta_eqn_mat_LHS(N, **kwdict), theta_factor_lhs)
+  matrixprinter('theta scheme, RHS', theta_eqn_mat_RHS(N, **kwdict), theta_factor_rhs)
   if inverse:
-    testprinter('theta scheme', theta_scheme_eqn(N, **kwdict))
+    matrixprinter('theta scheme', theta_scheme_eqn(N, **kwdict))
 
 
 P3ii_CASES : List[Dict[str, Numerical]] = [
@@ -299,7 +325,7 @@ P3ii_CASES : List[Dict[str, Numerical]] = [
 def matrix_assembly_cases(N : int) -> None:
   for d in P3ii_CASES:
     header_str : str = ', \\ '.join([
-      '\\' + f'{k}={v}' 
+      ('\\' if k=='eta' else '') + f'{k}={v}' 
       for k,v in d.items()
     ])
     print(f"### case: $" + header_str + "$")
@@ -402,7 +428,7 @@ def run(
     t_final : float = 1.0,
     alpha : float = 1.0,
     bounds : Tuple[float, float] = (0, np.pi),
-    exact_soln : Callable[[float, FloatArrayLike], FloatArrayLike] = lambda t,x: np.sin(x - t),
+    exact_soln : Callable[[float, FloatArrayLike], FloatArrayLike] = lambda t,x: np.zeros_like(x),
     mat_generator : Optional[Callable[[int,Any], Matrix]] = theta_scheme_eqn,
     IC : Callable[[FloatArrayLike], FloatArrayLike] = lambda x: np.sin(x),
     BC : BCparam = BCparam('periodic', None),
@@ -518,7 +544,7 @@ def run(
 # lst_eta : List[float] = [0.5, 1.0, 2.0],
 
 def run_multi(
-    lst_t_final : List[float] = [0.0, 0.01, 0.1, 1.0],
+    lst_t_final : List[float] = [0.1, 0.5, 1.0],
     lst_alpha : List[float] = [0.0, 1.0,],
     lst_theta : List[float] = [0.5, 1.0, 2.0],
     lst_eta : List[float] = [0.0, 1.0],
@@ -529,11 +555,13 @@ def run_multi(
     for theta in lst_theta:
       for eta in lst_eta:
         for t_final in lst_t_final:
+          exact_soln = lambda t,x : np.exp(- eta * t) * np.sin(x - alpha * t)
           run(
             t_final = t_final,
             alpha = alpha,
             theta = theta,
             eta = eta,
+            exact_soln = exact_soln,
             **kwargs,
           )
 
@@ -634,6 +662,50 @@ def oldmain():
 
 
 
+def symbolic_old():
+  r"u(x,t) = \e^{ - t \eta} ( c_1 \e^{ - i (t a - x) } + c_{-1} \e^{ i (t a - x) } )"
+
+  u : sym.Function = sym.Function('u')
+  a, eta = sym.symbols('a eta')
+  # the constants c_1, c_2 are \hat{u}_{1}(0), \hat{u}_{-1}(0) respectively
+  c_1, c_m1 = sym.symbols(r'c_1 c_{-1}') 
+  x, t = sym.symbols('x t')
+
+  # the latex function above, expressed in sympy
+  u_sym : Expr = exp(-t * eta) * (
+    c_1 * exp(- sym.I * (t * a - x)) + c_m1 * exp(sym.I * (t * a - x))
+  )
+
+  print(latex(u_sym))
+
+  print(latex(sym.simplify(u_sym)))
+
+
+def eqnprint(eqn : Expr, **kwargs):
+  return print(f"$$\n\t{latex(eqn, **kwargs)} \n$$\n", **kwargs)
+
+def symbolic():
+  u : sym.Function = sym.Function('u')
+  a, eta = sym.symbols('a eta')
+  x, t = sym.symbols('x t')
+
+  # the original equation
+  r"u_t + a u_x = \eta u_{xx}"
+  u_eqn : Expr = u(x,t).diff(t) + a * u(x,t).diff(x) - eta * u(x,t).diff(x, x)
+
+  # the explicit solution
+  r"u(x,t) = \e^{-\eta t} \sin(x - a t)"
+  u_soln : Expr = sym.exp(-eta * t) * sym.sin(x - a * t)
+
+  solncheck = u_eqn.subs(u(x,t), u_soln)
+  print(sym.simplify(solncheck))
+  print(solncheck)
+  eqnprint(solncheck)
+  eqnprint(sym.simplify(solncheck))
+  
+
+
+
 
 if __name__ == '__main__':
   import fire
@@ -645,6 +717,7 @@ if __name__ == '__main__':
     'oldmain' : oldmain,
     'run' : run,
     'run_multi' : run_multi,
+    'symbolic' : symbolic,
   })
 
 
