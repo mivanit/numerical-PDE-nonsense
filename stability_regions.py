@@ -7,9 +7,12 @@ import sympy as sym
 import numpy as np
 
 import matplotlib.pyplot as plt
+import matplotlib.path as mplPath
 
 from theta_scheme_numerics import MATRIX_DIFFOPS
 
+
+EPSILON : float = 1e-6
 
 # global symbol declarations
 
@@ -48,6 +51,22 @@ DIFFERENCE_OPERATORS : Dict[str, Callable] = {
 	'D_+^2' : lambda f, x, h : ( f[x+2] - 2 * f[x+1] + f[x] ) / (h**2),
 	'D_-^2' : lambda f, x, h : ( f[x] - 2 * f[x-1] + f[x-2] ) / (h**2),
 }
+
+
+MAT_DIFFOP_PLOT_FMT : Dict[str,str] = {
+	'D_0' : '.',
+	'D_+' : '+',
+	'D_-' : 'x',
+	'D_- D_+' : '.',
+	'D_+^2' : '+',
+	'D_-^2' : 'x',
+}
+
+MAT_DIFFOP_BYORDER : Dict[int, Set[str]] = {
+	1 : {'D_0', 'D_+', 'D_-'},
+	2 : {'D_- D_+', 'D_+^2', 'D_-^2'},
+}
+
 
 # DIFFERENCE_OPERATORS_INT : Dict[str, int] = {
 # 	'D_0' : 0,
@@ -217,6 +236,105 @@ def plot_stab_region(
 
 	return fig,ax
 
+def gen_stab_table(
+		eigvals : Dict[str, np.ndarray], 
+		cfl : float = 1.0,
+		order : int = 1,
+	) -> Dict[str, Dict[str, bool]]:
+
+	table : Dict[str, Dict[str, bool]] = dict()
+
+	# iterate over rows
+	for scheme,schemename in DIFFOP_AREAPLOT_NAMES.items():
+		table[schemename] = dict()
+
+		stab_are_eigs_sorted : Tuple[np.ndarray, np.ndarray] = sort_radial(
+			eigvals[scheme].real / cfl,
+			eigvals[scheme].imag / cfl,
+		)
+		stabAreaPath : mplPath.Path = mplPath.Path(np.array(stab_are_eigs_sorted).T)
+
+		for diffop in MAT_DIFFOP_BYORDER[order]:
+			eig : np.ndarray = eigvals[diffop]
+			sorted_eigs : np.ndarray = np.array(sort_radial(
+				eig.real,
+				eig.imag,
+			))
+			
+			if scheme == 'D_0':
+				# for central difference, 
+				# check the real part is 0 and imaginary is < 1/lambda in magnitude
+				table[schemename][diffop] = (
+					all(abs(x) < EPSILON for x in sorted_eigs[0])
+					and
+					all(abs(x) < 1/cfl for x in sorted_eigs[1])
+				)
+			elif scheme == 'D_+':
+				# check that the eigenvalues are in the stability region
+				points_in_region : np.ndarray = stabAreaPath.contains_points(sorted_eigs.T)
+				
+				table[schemename][diffop] = all(points_in_region)
+			
+			elif scheme == 'D_-':
+				# check that the eigenvalues are in the stability region
+				# fudging: to compensate for numerical error,
+				# move everything a bit to the left
+
+				sorted_eigs_left : np.ndarray = sorted_eigs.copy()
+				sorted_eigs_left[0,:] -= 1e-5
+
+				points_in_region : np.ndarray = stabAreaPath.contains_points(sorted_eigs_left.T)
+
+				table[schemename][diffop] = not any(points_in_region)
+
+			else:
+				raise KeyError(f"unknown diffop {diffop}")
+	return table
+
+def doubledict_to_table(
+		data : Dict[str, Dict[str, Any]], 
+		mapping : Callable = str,
+		col_mapping : Callable = lambda x : f"${x}$",
+	) -> str:
+	"""convert a doubly nested dict to a LaTeX formatted table"""
+
+	row_lst : List[str] = list(data.keys())
+	n_rows : int = len(row_lst)
+	cols_lst : List[str] = list(set().union(*[set(data[row].keys()) for row in row_lst]))
+	n_cols : int = len(cols_lst)
+
+	# print(f"{row_lst=}, {cols_lst=}", file = sys.stderr)
+
+
+	# table defn
+	table : List[str] = [
+		r'\begin{tabular}{',
+		'|'.join(['c']*(n_cols+1)),
+		'}\n',
+		# '\hline\n',
+		# ' & '.join(mapping(key) for key in data.keys()),
+		# '\\\n',
+		# '\hline\n',
+	]
+
+	# header
+	table.append(' & '.join([' '] + [ col_mapping(x) for x in cols_lst ]))
+	table.append('\\\\ \n')
+	table.append('\\hline\n')
+
+	for row in row_lst:
+		table.append(row)
+		table.append(' & ')
+		table.append(' & '.join( mapping(data[row][col]) for col in cols_lst ))
+		table.append('\\\\ \n')
+
+	table.append(r'\end{tabular}')
+	table.append('\n')
+
+	return ''.join(table)
+
+
+
 def print_eigvals_conditions(
 		egival : List[Expr], 
 		grid_size : Expr,
@@ -322,20 +440,6 @@ def stability_eval(diff_ops_eqn : List[str]):
 
 
 
-MAT_DIFFOP_PLOT_FMT : Dict[str,str] = {
-	'D_0' : '.',
-	'D_+' : '+',
-	'D_-' : 'x',
-	'D_- D_+' : '.',
-	'D_+^2' : '+',
-	'D_-^2' : 'x',
-}
-
-MAT_DIFFOP_BYORDER : Dict[int, Set[str]] = {
-	1 : {'D_0', 'D_+', 'D_-'},
-	2 : {'D_- D_+', 'D_+^2', 'D_-^2'},
-}
-
 def analyze_diffop_matrix(
 		N : int = 5, 
 		num_N : int = 25, 
@@ -419,7 +523,20 @@ def stability_plots(
 		fig.legend()
 		fig.savefig(filename)
 		print(f"\n![Stability plot for difference schemes with $\\lambda = {cfl}$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.]({filename})\n")
-		
+
+		stab_table : Dict[str, Dict[str, bool]] = gen_stab_table(eigvals, cfl, order)
+		print(
+			r"\begin{table}\begin{center}", "\n",
+			doubledict_to_table(
+				stab_table, 
+				mapping = lambda x : 'Stable' if x else 'Unstable',
+			),
+			r"\end{center}", "\n",
+			r"\caption{",
+			f"Stability of schemes and difference operators for $\\lambda = {cfl}$",
+			r"}", "\n",
+			r"\end{table}",
+		)
 
 
 

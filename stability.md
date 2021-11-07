@@ -105,12 +105,45 @@
 
 ![Stability plot for difference schemes with $\lambda = 0.5$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord1_cfl_0.5.pdf)
 
+\begin{table}\begin{center} 
+ \begin{tabular}{c|c|c|c}
+  & $D_-$ & $D_+$ & $D_0$\\ 
+\hline
+Central Difference & Unstable & Unstable & Stable\\ 
+Forward Euler & Unstable & Stable & Unstable\\ 
+Backward Euler & Unstable & Stable & Stable\\ 
+\end{tabular}
+ \end{center} 
+ \caption{ Stability of schemes and difference operators for $\lambda = 0.5$ } 
+ \end{table}
 
 ![Stability plot for difference schemes with $\lambda = 1.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord1_cfl_1.0.pdf)
 
+\begin{table}\begin{center} 
+ \begin{tabular}{c|c|c|c}
+  & $D_-$ & $D_+$ & $D_0$\\ 
+\hline
+Central Difference & Unstable & Unstable & Stable\\ 
+Forward Euler & Unstable & Unstable & Unstable\\ 
+Backward Euler & Unstable & Stable & Stable\\ 
+\end{tabular}
+ \end{center} 
+ \caption{ Stability of schemes and difference operators for $\lambda = 1.0$ } 
+ \end{table}
 
 ![Stability plot for difference schemes with $\lambda = 3.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord1_cfl_3.0.pdf)
 
+\begin{table}\begin{center} 
+ \begin{tabular}{c|c|c|c}
+  & $D_-$ & $D_+$ & $D_0$\\ 
+\hline
+Central Difference & Unstable & Unstable & Unstable\\ 
+Forward Euler & Unstable & Unstable & Unstable\\ 
+Backward Euler & Stable & Stable & Stable\\ 
+\end{tabular}
+ \end{center} 
+ \caption{ Stability of schemes and difference operators for $\lambda = 3.0$ } 
+ \end{table}
 
 
 # equation $u_t = u_{xx}$ 
@@ -196,9 +229,42 @@
 
 ![Stability plot for difference schemes with $\lambda = 0.5$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord2_cfl_0.5.pdf)
 
+\begin{table}\begin{center} 
+ \begin{tabular}{c|c|c|c}
+  & $D_+^2$ & $D_-^2$ & $D_- D_+$\\ 
+\hline
+Central Difference & Unstable & Unstable & Unstable\\ 
+Forward Euler & Unstable & Unstable & Unstable\\ 
+Backward Euler & Stable & Stable & Stable\\ 
+\end{tabular}
+ \end{center} 
+ \caption{ Stability of schemes and difference operators for $\lambda = 0.5$ } 
+ \end{table}
 
 ![Stability plot for difference schemes with $\lambda = 1.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord2_cfl_1.0.pdf)
 
+\begin{table}\begin{center} 
+ \begin{tabular}{c|c|c|c}
+  & $D_+^2$ & $D_-^2$ & $D_- D_+$\\ 
+\hline
+Central Difference & Unstable & Unstable & Unstable\\ 
+Forward Euler & Unstable & Unstable & Unstable\\ 
+Backward Euler & Stable & Stable & Stable\\ 
+\end{tabular}
+ \end{center} 
+ \caption{ Stability of schemes and difference operators for $\lambda = 1.0$ } 
+ \end{table}
 
 ![Stability plot for difference schemes with $\lambda = 3.0$. Note that for Forward Euler, the stability region is shaded, while it is the region of instability that is shaded for Backward Euler.](py_img/stabplot_Ord2_cfl_3.0.pdf)
 
+\begin{table}\begin{center} 
+ \begin{tabular}{c|c|c|c}
+  & $D_+^2$ & $D_-^2$ & $D_- D_+$\\ 
+\hline
+Central Difference & Unstable & Unstable & Unstable\\ 
+Forward Euler & Unstable & Unstable & Unstable\\ 
+Backward Euler & Stable & Stable & Stable\\ 
+\end{tabular}
+ \end{center} 
+ \caption{ Stability of schemes and difference operators for $\lambda = 3.0$ } 
+ \end{table}

@@ -54,7 +54,50 @@ CONSTS : Dict[str,sym.Symbol] = {
 }
 
 def errprint(s : str, *args,**kwargs):
-  print('> ', s, *args, file = sys.stderr, **kwargs)
+  # print('> ', s, *args, file = sys.stderr, **kwargs)
+  pass
+
+def dict_to_filename(
+    data : Dict[str,float], 
+    key_order : Optional[List[str]] = None,
+    short_keys : Optional[int] = None,
+    delim_pair : str = '_',
+    delim_items : str = ',',
+  ) -> str:
+  """convert a dictionary to a filename
+  
+  format:
+  `key_value,otherkey_otherval,morekey_-0.1`
+  dont do this with long dicts, and dont use unsafe keys!
+  if `short_keys` is true, trims each key to that many chars
+  
+  ### Parameters:
+   - `data : Dict[str,float]`   
+     dict to turn into a filename. if keys are dotlists, use the last element of the dotlist
+   - `key_order : Optional[List[str]]`   
+     if specfied, list the keys in this order
+     (defaults to `None`)
+   - `short_keys : Optional[int]`   
+     if specified, shorten each key to this many chars
+     (defaults to `None`)
+  
+  ### Returns:
+   - `str` 
+     string from the dict
+  """
+
+  if key_order is None:
+    key_order = list(data.keys())
+
+  output : List[str] = []
+
+  for k in key_order:
+    # shorten the keys by splitting by dot, 
+    # and taking the first `short_keys` chars of the last bit
+    if data[k] is not None:
+      output.append(f'{k}{delim_pair}{data[k]:.3}')
+  
+  return delim_items.join(output)
 
 def off_diag_mat(N : int, offset : int = 0, val : float = 1, periodic : bool = False) -> Matrix:
   """generates a square matrix with elements on an off-diagonal
@@ -113,11 +156,11 @@ MATRIX_DIFFOPS : Dict[str, Callable[[int, float], Matrix]] = {
   'D_+' : lambda N,h,per=False : (off_diag_mat(N, 1, 1, per) + off_diag_mat(N, 0, -1, per)) / h,
   'D_-' : lambda N,h,per=False : (off_diag_mat(N, 0, 1, per) + off_diag_mat(N, -1, -1, per)) / h,
   # second order
-	'D_- D_+' : lambda N,h,per=False : ( 
+  'D_- D_+' : lambda N,h,per=False : ( 
       off_diag_mat(N, 1, 1, per) - 2 * off_diag_mat(N, 0, 1, per) + off_diag_mat(N, -1, 1, per) 
     ) / (h**2),
-	'D_+^2' : lambda N,h,per=False : ( off_diag_mat(N, 2, 1, per) - 2 * off_diag_mat(N, 1, 1, per) + off_diag_mat(N, 0, 1, per) ) / (h**2),
-	'D_-^2' : lambda N,h,per=False : ( off_diag_mat(N, 0, 1, per) - 2 * off_diag_mat(N, -1, 1, per) + off_diag_mat(N, -2, 1, per) ) / (h**2),
+  'D_+^2' : lambda N,h,per=False : ( off_diag_mat(N, 2, 1, per) - 2 * off_diag_mat(N, 1, 1, per) + off_diag_mat(N, 0, 1, per) ) / (h**2),
+  'D_-^2' : lambda N,h,per=False : ( off_diag_mat(N, 0, 1, per) - 2 * off_diag_mat(N, -1, 1, per) + off_diag_mat(N, -2, 1, per) ) / (h**2),
 }
 
 
@@ -276,13 +319,12 @@ def matrix_assembly_cases(N : int) -> None:
 
 def matrix_iter(
     t_final : float = 1.0,
-    # alpha : float = 1.0,
+    theta : float = 1.0,
+    eta : float = 1.0,
+    alpha : float = 1.0,
     n_gridpoints : int = 8,
     bounds : Tuple[float, float] = (0, np.pi),
-    # dt : float = 0.005,
-	  # cfl : float = .1,
     mat_generator : Optional[Callable[[int,Any], NDArray]] = theta_scheme_eqn,
-    scheme_kwargs : Optional[Dict[str, Any]] = None,
     IC : Callable[[FloatArrayLike], FloatArrayLike] = lambda x: np.zeros_like(x),
     BC : BCparam = BCparam('periodic', None),
   ):
@@ -296,30 +338,27 @@ def matrix_iter(
   )
 
   # compute dt to make cfl correct
-  # TODO: replace placeholder
-  dt : float = (x_arr[1] - x_arr[0]) * 0.01
-  h = x_arr[1] - x_arr[0]
+  h : float = x_arr[1] - x_arr[0]
+  dt : float = h
+  if theta <= 0.5:
+    dt = 0.1 * h**2.0 / abs(eta)
 
   # print(f'$$\\lambda = {cfl}, \\quad \\Delta_t = {dt}, \\quad \\Delta_x = {(x_arr[1] - x_arr[0])}$$')
 
   # init time arrays
-  n_tsteps : int = int(t_final // dt)
-  t_arr : NDArray[n_tsteps, float] = np.linspace(0.0, t_final, n_tsteps)
+  n_tsteps : int = int(t_final // dt) + 2
+  t_arr : NDArray[n_tsteps, float] = np.linspace(0.0, t_final, n_tsteps, endpoint = True)
+  Delta_t : float = t_arr[1] - t_arr[0]
 
   # get matrix
-  # TODO: remove placeholder values
-  if scheme_kwargs is None:
-    scheme_kwargs = dict()
-
   scheme_mat_num : NDArray[n_gridpoints,n_gridpoints] = mat_generator(
     n_gridpoints, 
     h = h,
-    eta = 0.01,
-    a = 0.01,
-    theta = 0.01, 
-    Delta_t = 0.01,
+    eta = eta,
+    a = alpha,
+    theta = theta, 
+    Delta_t = Delta_t,
     BC = BC,
-    **scheme_kwargs,
     use_ndarr = True,
   )
 
@@ -363,20 +402,24 @@ def run(
     t_final : float = 1.0,
     alpha : float = 1.0,
     bounds : Tuple[float, float] = (0, np.pi),
-    exact_soln : Callable[[float, FloatArrayLike], FloatArrayLike] = lambda t,x: np.zeros_like(x),
+    exact_soln : Callable[[float, FloatArrayLike], FloatArrayLike] = lambda t,x: np.sin(x - t),
     mat_generator : Optional[Callable[[int,Any], Matrix]] = theta_scheme_eqn,
-    scheme_kwargs : Optional[Dict[str, Any]] = None,
-    IC : Callable[[FloatArrayLike], FloatArrayLike] = lambda x: np.zeros_like(x),
+    IC : Callable[[FloatArrayLike], FloatArrayLike] = lambda x: np.sin(x),
     BC : BCparam = BCparam('periodic', None),
     plot : Union[bool,str] = True,
     show : bool = False,
     print_table : bool = True,
-    **iter_kwargs,
+    **scheme_kwargs,
   ):
   """run the solver for several grid sizes
   
   TODO: allow for different options of `a`, `eta`
   """
+
+  print(
+    f"{try_n_grids=}, {t_final=}, {alpha=}, {scheme_kwargs=}",
+    file = sys.stderr,
+  )
 
   errprint('initializing')
 
@@ -397,6 +440,9 @@ def run(
       label = 'exact',
     )
 
+  if scheme_kwargs is None:
+    scheme_kwargs = dict()
+
   for m,n_gridpoints in enumerate(try_n_grids):
     errprint(f'running with {n_gridpoints=}')
     x_arr,t_arr,v_grid = matrix_iter(
@@ -404,9 +450,9 @@ def run(
       n_gridpoints = n_gridpoints,
       bounds = bounds,
       mat_generator = mat_generator,
-      scheme_kwargs = scheme_kwargs,
       IC = IC,
       BC = BC,
+      **scheme_kwargs,
     )
 
     errprint(f'\trun finished, saving and plotting data')
@@ -417,8 +463,14 @@ def run(
       plt.plot(x_arr, v_grid[-1], label = f'n = {n_gridpoints}')
 
   errprint(f'processing filename')
+  fname_params_dict : Dict[str,float] = {
+    'a' : alpha,
+    'Tf' : t_final,
+    'theta' : scheme_kwargs.get('theta', None),
+    'eta' : scheme_kwargs.get('eta', None),
+  }
   if isinstance(plot, bool):
-    filename : str = f'py_img/{mat_generator.__name__}_a{alpha:.2}_Tf{t_final:.3}.eps'
+    filename : str = f'py_img/theta_scheme/{mat_generator.__name__}_{dict_to_filename(fname_params_dict)}.png'
   elif isinstance(plot, str):
     filename = str(plot)
   else:
@@ -428,18 +480,27 @@ def run(
   if print_table:
     errprint(f'printing table')
     print('\n\n')
-    print(f'## {mat_generator.__name__} errors for a = {alpha:.2} and T_f = {t_final:.3}\n')
-    print(f'![]({filename}){{width=50%}}\n')
+    print(f"## errors for $\\theta = {fname_params_dict['theta']:.2}$, $\\eta = {fname_params_dict['eta']:.2}$, $a = {alpha:.2}$, $T_f = {t_final:.3}$\n")
+    
+    # print(r'\begin{figure}\begin{centering}')
+    # print(f'\\includegraphics[width=0.5\\linewidth]{{{filename}}}\n')
+    print(f"![]({filename}){{width=50%}}")
 
-    print('\\begin{tabular}{l|l}')
+    print(r'\begin{tabular}{l|l}')
     print(f'$n$ gridpoints & error \\\\ \\hline')
     for n,e in zip(try_n_grids, err):
       print(f'{n} & {e:.4} \\\\')
-    print('\\end{tabular}')
+    print(r'\end{tabular}')
+
+    # print(
+    #   r'\caption{',
+    #   f"errors for $\\theta = {fname_params_dict['theta']:.2}$, $\\eta = {fname_params_dict['eta']:.2}$, $a = {alpha:.2}$, $T_f = {t_final:.3}$",
+    #   r'}',
+    # )
+    # print(r'\end{centering}\end{figure}')
 
   if plot:
     errprint(f'final plotting')
-    os.mkdir('py_img', exist_ok = True)
     # plot the solutions
     plt.legend()
     if show:
@@ -449,6 +510,33 @@ def run(
     plt.cla()
 
   return err
+
+
+# lst_t_final : List[float] = [0.1, 0.5, 1.0, 2.0],
+# lst_alpha : List[float] = [0.5, 1.0, 2.0],
+# lst_theta : List[float] = [0.5, 1.0, 2.0],
+# lst_eta : List[float] = [0.5, 1.0, 2.0],
+
+def run_multi(
+    lst_t_final : List[float] = [0.0, 0.01, 0.1, 1.0],
+    lst_alpha : List[float] = [0.0, 1.0,],
+    lst_theta : List[float] = [0.5, 1.0, 2.0],
+    lst_eta : List[float] = [0.0, 1.0],
+    **kwargs,
+  ):
+
+  for alpha in lst_alpha:
+    for theta in lst_theta:
+      for eta in lst_eta:
+        for t_final in lst_t_final:
+          run(
+            t_final = t_final,
+            alpha = alpha,
+            theta = theta,
+            eta = eta,
+            **kwargs,
+          )
+
 
 
 
@@ -501,7 +589,7 @@ def oldmain():
             bounds = bounds,
             alpha = alpha,
             t_final = t_final,
-            plot = f'py_img/{scheme_name}_{ic_key}_a{alpha:.2}_Tf{t_final:.3}.eps',
+            plot = f'py_img/{scheme_name}_{ic_key}_a{alpha:.2}_Tf{t_final:.3}.png',
             print_table = print_table,
           )
 
@@ -515,7 +603,7 @@ def oldmain():
         plt.legend()
         plt.xlabel(r'$\log_{10} (N)$ gridpoints')
         plt.ylabel(r'$\log_{10} (e)$ error')
-        filename_log_errs : str = f'py_img/{scheme_name}_{ic_key}_a{alpha:.2}_log-errs.eps'
+        filename_log_errs : str = f'py_img/{scheme_name}_{ic_key}_a{alpha:.2}_log-errs.png'
         plt.savefig(filename_log_errs)
         plt.clf()
         plt.cla()
@@ -556,6 +644,7 @@ if __name__ == '__main__':
     ),
     'oldmain' : oldmain,
     'run' : run,
+    'run_multi' : run_multi,
   })
 
 
