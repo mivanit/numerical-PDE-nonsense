@@ -1,35 +1,35 @@
 # difference operator analysis 
 
- - difference operator $D_0$, for $N=5$, width periodic boundary conditions:
+ - difference operator $D_0$, for $N=5$, with periodic boundary conditions:
    $$  D_0  =  \left[\begin{smallmatrix}0 & \frac{1}{2 h} & 0 & - \frac{1}{2 h} & 0\\- \frac{1}{2 h} & 0 & \frac{1}{2 h} & 0 & 0\\0 & - \frac{1}{2 h} & 0 & \frac{1}{2 h} & 0\\0 & 0 & - \frac{1}{2 h} & 0 & \frac{1}{2 h}\\0 & \frac{1}{2 h} & 0 & - \frac{1}{2 h} & 0\end{smallmatrix}\right]  $$
    - eigenvalues of $D_0$:
 
-    $$ _{ \left\{0, - \frac{i}{h}, \frac{i}{h}\right\} } $$
- - difference operator $D_+$, for $N=5$, width periodic boundary conditions:
+    $$ _{ \left[\begin{matrix}- \frac{i}{h}\\\frac{i}{h}\\0\end{matrix}\right] } $$
+ - difference operator $D_+$, for $N=5$, with periodic boundary conditions:
    $$  D_+  =  \left[\begin{smallmatrix}- \frac{1}{h} & \frac{1}{h} & 0 & 0 & 0\\0 & - \frac{1}{h} & \frac{1}{h} & 0 & 0\\0 & 0 & - \frac{1}{h} & \frac{1}{h} & 0\\0 & 0 & 0 & - \frac{1}{h} & \frac{1}{h}\\0 & \frac{1}{h} & 0 & 0 & - \frac{1}{h}\end{smallmatrix}\right]  $$
    - eigenvalues of $D_+$:
 
-    $$ _{ \left\{0, - \frac{2}{h}, - \frac{1}{h}, \frac{-1 + i}{h}, - \frac{1 + i}{h}\right\} } $$
- - difference operator $D_-$, for $N=5$, width periodic boundary conditions:
+    $$ _{ \left[\begin{matrix}- \frac{1}{h}\\- \frac{2}{h}\\- \frac{1 + i}{h}\\\frac{-1 + i}{h}\\0\end{matrix}\right] } $$
+ - difference operator $D_-$, for $N=5$, with periodic boundary conditions:
    $$  D_-  =  \left[\begin{smallmatrix}\frac{1}{h} & 0 & 0 & - \frac{1}{h} & 0\\- \frac{1}{h} & \frac{1}{h} & 0 & 0 & 0\\0 & - \frac{1}{h} & \frac{1}{h} & 0 & 0\\0 & 0 & - \frac{1}{h} & \frac{1}{h} & 0\\0 & 0 & 0 & - \frac{1}{h} & \frac{1}{h}\end{smallmatrix}\right]  $$
    - eigenvalues of $D_-$:
 
-    $$ _{ \left\{0, \frac{1}{h}, \frac{2}{h}, \frac{1 - i}{h}, \frac{1 + i}{h}\right\} } $$
- - difference operator $D_- D_+$, for $N=5$, width dirichlet boundary conditions:
+    $$ _{ \left[\begin{matrix}\frac{2}{h}\\\frac{1}{h}\\\frac{1 - i}{h}\\\frac{1 + i}{h}\\0\end{matrix}\right] } $$
+ - difference operator $D_- D_+$, for $N=5$, with dirichlet boundary conditions:
    $$  D_- D_+  =  \left[\begin{smallmatrix}- \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0 & \frac{2}{h^{2}} & 0\\0 & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0 & 0\\0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0\\0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & 0\\0 & 0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}}\end{smallmatrix}\right]  $$
    - eigenvalues of $D_- D_+$:
 
-    $$ _{ \left\{- \frac{2}{h^{2}}, \frac{-2 + \sqrt{2}}{h^{2}}, - \frac{\sqrt{2} + 2}{h^{2}}\right\} } $$
- - difference operator $D_+^2$, for $N=5$, width dirichlet boundary conditions:
+    $$ _{ \left[\begin{matrix}- \frac{2}{h^{2}}\\- \frac{\sqrt{2} + 2}{h^{2}}\\\frac{-2 + \sqrt{2}}{h^{2}}\end{matrix}\right] } $$
+ - difference operator $D_+^2$, for $N=5$, with dirichlet boundary conditions:
    $$  D_+^2  =  \left[\begin{smallmatrix}\frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & 0\\0 & \frac{1}{h^{2}} & - \frac{1}{h^{2}} & 0 & 0\\0 & 0 & \frac{1}{h^{2}} & - \frac{1}{h^{2}} & 0\\0 & 0 & 0 & \frac{1}{h^{2}} & 0\\0 & 0 & 0 & 0 & \frac{1}{h^{2}}\end{smallmatrix}\right]  $$
    - eigenvalues of $D_+^2$:
 
-    $$ _{ \left\{\frac{1}{h^{2}}\right\} } $$
- - difference operator $D_-^2$, for $N=5$, width dirichlet boundary conditions:
+    $$ _{ \left[\begin{matrix}\frac{1}{h^{2}}\end{matrix}\right] } $$
+ - difference operator $D_-^2$, for $N=5$, with dirichlet boundary conditions:
    $$  D_-^2  =  \left[\begin{smallmatrix}\frac{1}{h^{2}} & 0 & 0 & - \frac{2}{h^{2}} & 0\\0 & \frac{1}{h^{2}} & \frac{1}{h^{2}} & 0 & 0\\0 & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & \frac{1}{h^{2}} & 0\\0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}} & 0\\0 & 0 & \frac{1}{h^{2}} & - \frac{2}{h^{2}} & \frac{1}{h^{2}}\end{smallmatrix}\right]  $$
    - eigenvalues of $D_-^2$:
 
-    $$ _{ \left\{\frac{1}{h^{2}}, \frac{\frac{8 \sqrt[3]{18}}{3} + \frac{\left(1 - \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}} \left(12 + \left(-1 + \sqrt{3} i\right) \sqrt[3]{108 + 12 \sqrt{849}}\right)}{12}}{h^{2} \left(1 - \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}}}, \frac{\frac{8 \sqrt[3]{18}}{3} - \frac{\left(-12 + \left(1 + \sqrt{3} i\right) \sqrt[3]{108 + 12 \sqrt{849}}\right) \left(1 + \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}}}{12}}{h^{2} \left(1 + \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}}}, - \frac{4 \sqrt[3]{18}}{3 h^{2} \sqrt[3]{9 + \sqrt{849}}} + \frac{1}{h^{2}} + \frac{\sqrt[3]{108 + 12 \sqrt{849}}}{6 h^{2}}\right\} } $$
+    $$ _{ \left[\begin{matrix}\frac{1}{h^{2}}\\- \frac{4 \sqrt[3]{18}}{3 h^{2} \sqrt[3]{9 + \sqrt{849}}} + \frac{1}{h^{2}} + \frac{\sqrt[3]{108 + 12 \sqrt{849}}}{6 h^{2}}\\\frac{\frac{8 \sqrt[3]{18}}{3} + \frac{\left(1 - \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}} \left(12 + \left(-1 + \sqrt{3} i\right) \sqrt[3]{108 + 12 \sqrt{849}}\right)}{12}}{h^{2} \left(1 - \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}}}\\\frac{\frac{8 \sqrt[3]{18}}{3} - \frac{\left(-12 + \left(1 + \sqrt{3} i\right) \sqrt[3]{108 + 12 \sqrt{849}}\right) \left(1 + \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}}}{12}}{h^{2} \left(1 + \sqrt{3} i\right) \sqrt[3]{9 + \sqrt{849}}}\end{matrix}\right] } $$
 
 ![Eigenvalues for 1st order difference operators plotted in the complex plane](py_img/diffop_eigvals_Ord-1_N5_25_h1.0.png)
 
@@ -107,11 +107,11 @@
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_0$ & $D_+$ & $D_-$\\ 
+  & $D_-$ & $D_0$ & $D_+$\\ 
 \hline
-Central Difference & Stable & Unstable & Unstable\\ 
+Central Difference & Unstable & Stable & Unstable\\ 
 Forward Euler & Unstable & Unstable & Unstable\\ 
-Backward Euler & Stable & Stable & Unstable\\ 
+Backward Euler & Unstable & Stable & Stable\\ 
 \end{tabular}
  \end{center} 
  \caption{ Stability of schemes and difference operators for $\lambda = 0.5$ } 
@@ -121,11 +121,11 @@ Backward Euler & Stable & Stable & Unstable\\
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_0$ & $D_+$ & $D_-$\\ 
+  & $D_-$ & $D_0$ & $D_+$\\ 
 \hline
 Central Difference & Unstable & Unstable & Unstable\\ 
 Forward Euler & Unstable & Unstable & Unstable\\ 
-Backward Euler & Stable & Stable & Unstable\\ 
+Backward Euler & Unstable & Stable & Stable\\ 
 \end{tabular}
  \end{center} 
  \caption{ Stability of schemes and difference operators for $\lambda = 1.0$ } 
@@ -135,7 +135,7 @@ Backward Euler & Stable & Stable & Unstable\\
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_0$ & $D_+$ & $D_-$\\ 
+  & $D_-$ & $D_0$ & $D_+$\\ 
 \hline
 Central Difference & Unstable & Unstable & Unstable\\ 
 Forward Euler & Unstable & Unstable & Unstable\\ 
@@ -231,9 +231,9 @@ Backward Euler & Stable & Stable & Stable\\
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_-^2$ & $D_- D_+$ & $D_+^2$\\ 
+  & $D_-^2$ & $D_+^2$ & $D_- D_+$\\ 
 \hline
-Central Difference & Unstable & Unstable & Stable\\ 
+Central Difference & Unstable & Stable & Unstable\\ 
 Forward Euler & Unstable & Stable & Stable\\ 
 Backward Euler & Unstable & Stable & Stable\\ 
 \end{tabular}
@@ -245,10 +245,10 @@ Backward Euler & Unstable & Stable & Stable\\
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_-^2$ & $D_- D_+$ & $D_+^2$\\ 
+  & $D_-^2$ & $D_+^2$ & $D_- D_+$\\ 
 \hline
-Central Difference & Unstable & Unstable & Stable\\ 
-Forward Euler & Unstable & Unstable & Stable\\ 
+Central Difference & Unstable & Stable & Unstable\\ 
+Forward Euler & Unstable & Stable & Unstable\\ 
 Backward Euler & Stable & Stable & Stable\\ 
 \end{tabular}
  \end{center} 
@@ -259,10 +259,10 @@ Backward Euler & Stable & Stable & Stable\\
 
 \begin{table}\begin{center} 
  \begin{tabular}{c|c|c|c}
-  & $D_-^2$ & $D_- D_+$ & $D_+^2$\\ 
+  & $D_-^2$ & $D_+^2$ & $D_- D_+$\\ 
 \hline
-Central Difference & Unstable & Unstable & Stable\\ 
-Forward Euler & Unstable & Unstable & Stable\\ 
+Central Difference & Unstable & Stable & Unstable\\ 
+Forward Euler & Unstable & Stable & Unstable\\ 
 Backward Euler & Stable & Stable & Stable\\ 
 \end{tabular}
  \end{center} 

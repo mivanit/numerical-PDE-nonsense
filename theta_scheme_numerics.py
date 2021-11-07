@@ -183,8 +183,12 @@ MATRIX_DIFFOPS : Dict[str, Callable[[int, float, BoundaryCondition], Matrix]] = 
   'D_- D_+' : lambda N,h,bdry=None : ( 
       off_diag_mat(N, -1, 1, bdry) - 2 * off_diag_mat(N, 0, 1, bdry) + off_diag_mat(N, 1, 1, bdry) 
     ) / (h**2),
-  'D_+^2' : lambda N,h,bdry=None : ( off_diag_mat(N, 2, 1, bdry) - 2 * off_diag_mat(N, 1, 1, bdry) + off_diag_mat(N, 0, 1, bdry) ) / (h**2),
-  'D_-^2' : lambda N,h,bdry=None : ( off_diag_mat(N, 0, 1, bdry) - 2 * off_diag_mat(N, -1, 1, bdry) + off_diag_mat(N, -2, 1, bdry) ) / (h**2),
+  'D_+^2' : lambda N,h,bdry=None : ( 
+    off_diag_mat(N, 2, 1, bdry) - 2 * off_diag_mat(N, 1, 1, bdry) + off_diag_mat(N, 0, 1, bdry) 
+  ) / (h**2),
+  'D_-^2' : lambda N,h,bdry=None : ( 
+    off_diag_mat(N, 0, 1, bdry) - 2 * off_diag_mat(N, -1, 1, bdry) + off_diag_mat(N, -2, 1, bdry) 
+  ) / (h**2),
   # 'D_+ D_-' : lambda N,h,bdry=None : ( 
   #     off_diag_mat(N, 1, 1, bdry) - 2 * off_diag_mat(N, 0, 1, bdry) + off_diag_mat(N, -1, 1, bdry) 
   #   ) / (h**2),
@@ -520,7 +524,10 @@ def run(
     'eta' : scheme_kwargs.get('eta', None),
   }
   if isinstance(plot, bool):
-    filename : str = f'py_img/theta_scheme/{mat_generator.__name__}_{dict_to_filename(fname_params_dict)}.{EXPORT_FILE_EXTENSION}'
+    filename : str = (
+      f'py_img/theta_scheme/{mat_generator.__name__}_'
+      + f'{dict_to_filename(fname_params_dict)}.{EXPORT_FILE_EXTENSION}'
+    )
   elif isinstance(plot, str):
     filename = str(plot)
   else:
@@ -530,7 +537,10 @@ def run(
   if print_table:
     errprint(f'printing table')
     print('\n\n')
-    print(f"## errors for $\\theta = {fname_params_dict['theta']:.2}$, $\\eta = {fname_params_dict['eta']:.2}$, $a = {alpha:.2}$, $T_f = {t_final:.3}$\n")
+    print(
+      f"## errors for $\\theta = {fname_params_dict['theta']:.2}$,",
+      " $\\eta = {fname_params_dict['eta']:.2}$, $a = {alpha:.2}$, $T_f = {t_final:.3}$\n",
+    )
     
     # print(r'\begin{figure}\begin{centering}')
     # print(f'\\includegraphics[width=0.5\\linewidth]{{{filename}}}\n')
@@ -544,7 +554,8 @@ def run(
 
     # print(
     #   r'\caption{',
-    #   f"errors for $\\theta = {fname_params_dict['theta']:.2}$, $\\eta = {fname_params_dict['eta']:.2}$, $a = {alpha:.2}$, $T_f = {t_final:.3}$",
+    #   f"errors for $\\theta = {fname_params_dict['theta']:.2}$, $\\eta = \
+    # {fname_params_dict['eta']:.2}$, $a = {alpha:.2}$, $T_f = {t_final:.3}$",
     #   r'}',
     # )
     # print(r'\end{centering}\end{figure}')
