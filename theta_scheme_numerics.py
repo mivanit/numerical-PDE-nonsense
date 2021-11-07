@@ -18,7 +18,7 @@ from pydbg import dbg
 # sys.path.append('../')
 # from util import *
 
-EXPORT_FILE_EXTENSION : str = 'png'
+EXPORT_FILE_EXTENSION : str = 'pdf'
 
 def raise_ValueError(msg : str) -> None:
   raise ValueError(msg)
@@ -352,6 +352,7 @@ P3ii_CASES : List[Dict[str, Numerical]] = [
 
 def matrix_assembly_cases(N : int) -> None:
   for d in P3ii_CASES:
+    print('\n')
     header_str : str = ', \\ '.join([
       ('\\' if k=='eta' else '') + f'{k}={v}' 
       for k,v in d.items()
@@ -377,7 +378,7 @@ def matrix_iter(
     eta : float = 1.0,
     alpha : float = 1.0,
     n_gridpoints : int = 8,
-    bounds : Tuple[float, float] = (0, np.pi),
+    bounds : Tuple[float, float] = (0, 2 * np.pi),
     mat_generator : Optional[Callable[[int,Any], NDArray]] = theta_scheme_eqn,
     IC : Callable[[FloatArrayLike], FloatArrayLike] = lambda x: np.zeros_like(x),
     BC : BCparam = BCparam('periodic', None),
@@ -455,7 +456,7 @@ def run(
     try_n_grids : List[int] = [8,16,32], # [16,32,64,128]
     t_final : float = 1.0,
     alpha : float = 1.0,
-    bounds : Tuple[float, float] = (0, np.pi),
+    bounds : Tuple[float, float] = (0, 2*np.pi),
     exact_soln : Callable[[float, FloatArrayLike], FloatArrayLike] = lambda t,x: np.zeros_like(x),
     mat_generator : Optional[Callable[[int,Any], Matrix]] = theta_scheme_eqn,
     IC : Callable[[FloatArrayLike], FloatArrayLike] = lambda x: np.sin(x),
@@ -501,6 +502,7 @@ def run(
     errprint(f'running with {n_gridpoints=}')
     x_arr,t_arr,v_grid = matrix_iter(
       t_final = t_final,
+      alpha = alpha,
       n_gridpoints = n_gridpoints,
       bounds = bounds,
       mat_generator = mat_generator,
@@ -534,22 +536,26 @@ def run(
     raise NotImplementedError(f'plot type {plot} : {type(plot)} not supported')
   
 
+  # compute order of error
+  # order = log(old / new) / log(old_grid / new_grid)
+  err_order : NDArray = np.log(err[:-1] / err[1:]) / np.log(np.array(try_n_grids)[:-1] / np.array(try_n_grids)[1:])
+
   if print_table:
     errprint(f'printing table')
     print('\n\n')
     print(
       f"## errors for $\\theta = {fname_params_dict['theta']:.2}$,",
-      " $\\eta = {fname_params_dict['eta']:.2}$, $a = {alpha:.2}$, $T_f = {t_final:.3}$\n",
+      f" $\\eta = {fname_params_dict['eta']:.2}$, $a = {alpha:.2}$, $T_f = {t_final:.3}$\n",
     )
     
     # print(r'\begin{figure}\begin{centering}')
     # print(f'\\includegraphics[width=0.5\\linewidth]{{{filename}}}\n')
     print(f"![]({filename}){{width=50%}}")
 
-    print(r'\begin{tabular}{l|l}')
-    print(f'$n$ gridpoints & error \\\\ \\hline')
-    for n,e in zip(try_n_grids, err):
-      print(f'{n} & {e:.4} \\\\')
+    print(r'\begin{tabular}{l|l|l}')
+    print(f'$n$ gridpoints & error & order of error \\\\ \\hline')
+    for n,e,eo in zip(try_n_grids, err, [float('nan')] + list(err_order)):
+      print(f'{n} & {e:.4} & {eo:.4} \\\\')
     print(r'\end{tabular}')
 
     # print(
@@ -579,10 +585,11 @@ def run(
 # lst_eta : List[float] = [0.5, 1.0, 2.0],
 
 def run_multi(
-    lst_t_final : List[float] = [0.1, 0.5, 1.0],
+    lst_t_final : List[float] = [0.01, 0.75, 2.0],
     lst_alpha : List[float] = [0.0, 1.0,],
-    lst_theta : List[float] = [0.5, 1.0, 2.0],
+    lst_theta : List[float] = [0.4, 0.7, 1.0],
     lst_eta : List[float] = [0.0, 1.0],
+    try_n_grids : List[int] = [8,16,32,64,128],
     **kwargs,
   ):
 
@@ -597,6 +604,7 @@ def run_multi(
             theta = theta,
             eta = eta,
             exact_soln = exact_soln,
+            try_n_grids = try_n_grids,
             **kwargs,
           )
 

@@ -360,8 +360,8 @@ def print_eigvals_conditions(
   ) -> None:
   
   print(
-    f'{indent}- condition on ${latex(gamma)}$ derived from requiring ",
-    "each eigenvalue be less than 1 in abosolute value',
+    f'{indent}- condition on ${latex(gamma)}$ derived from requiring ',
+    'each eigenvalue be less than 1 in abosolute value',
   )
   print(
     indent,
@@ -426,8 +426,8 @@ def stability_eval(diff_ops_eqn : List[str]):
       
       # print(f'{discretization=} {operator=} {idx_sym=} {grid_size=} {solvefor=}    ')
       print(
-        f' - {discretization} discretization with operator ${operator}$, ",
-        "solving for ${latex(solvefor_lst)}$, and $z := {latex(gamma)}{latex(grid_size)}$    ',
+        f' - {discretization} discretization with operator ${operator}$, ',
+        f'solving for ${latex(solvefor_lst)}$, and $z := {latex(gamma)}{latex(grid_size)}$    ',
       )
       
       eqn : Expr = diff_op(u, idx_sym, grid_size) - gamma * u[idx_sym]
@@ -520,7 +520,9 @@ def analyze_diffop_matrix(
     plt.savefig(filename)
     print(
       f"\n![Eigenvalues for {diff_order}{'st' if diff_order == 1 else 'nd'} ",
-      "order difference operators plotted in the complex plane]({filename})\n",
+      f"order difference operators plotted in the complex plane]({filename})",
+	  r'{width=80%}',
+	  '\n',
     )
     plt.cla()
     plt.clf()
@@ -558,7 +560,9 @@ def stability_plots(
     print(
       f"\n![Stability plot for difference schemes with $\\lambda = {cfl}$." ,
       "Note that for Forward Euler, the stability region is shaded, while it is the region ",
-      "of instability that is shaded for Backward Euler.]({filename})\n",
+      f"of instability that is shaded for Backward Euler.]({filename})",
+	  r'{width=80%}',
+	  '\n',
     )
 
     stab_table : Dict[str, Dict[str, bool]] = gen_stab_table(eigvals, cfl, order)
@@ -581,13 +585,16 @@ def main():
   print(r'# difference operator analysis', '\n')
   eigvals : Dict[str, np.ndarray] = analyze_diffop_matrix(N = 5, num_N = 25)
   print('\n')
+  print('\n', r'\newpage', '\n')
   print(r'# equation $u_t = - u_x$', '\n')
   stability_eval(DIFF_FIRSTORDER)
   stability_plots(1, eigvals)
   print('\n')
+  print('\n', r'\newpage', '\n')
   print(r'# equation $u_t = u_{xx}$', '\n')
   stability_eval(DIFF_SECONDORDER)
   stability_plots(2, eigvals)
+  print('\n', r'\newpage', '\n')
 
 if __name__ == '__main__':
   main()
