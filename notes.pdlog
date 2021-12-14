@@ -1,0 +1,131 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (MiKTeX 21.6)
+entering extended mode
+(notes.tex
+LaTeX2e <2021-06-01>
+L3 programming layer <2021-06-01>
+(C:\Program Files\MiKTeX\tex/latex/base\article.cls
+Document Class: article 2021/02/12 v1.4n Standard LaTeX document class
+(C:\Program Files\MiKTeX\tex/latex/base\size10.clo))
+(C:\Program Files\MiKTeX\tex/latex/amsmath\amsmath.sty
+For additional information on amsmath, use the `?' option.
+(C:\Program Files\MiKTeX\tex/latex/amsmath\amstext.sty
+(C:\Program Files\MiKTeX\tex/latex/amsmath\amsgen.sty))
+(C:\Program Files\MiKTeX\tex/latex/amsmath\amsbsy.sty)
+(C:\Program Files\MiKTeX\tex/latex/amsmath\amsopn.sty))
+(C:\Program Files\MiKTeX\tex/latex/amsfonts\amssymb.sty
+(C:\Program Files\MiKTeX\tex/latex/amsfonts\amsfonts.sty))
+(C:\Program Files\MiKTeX\tex/latex/lm\lmodern.sty)
+(C:\Program Files\MiKTeX\tex/generic/iftex\iftex.sty)
+(C:\Program Files\MiKTeX\tex/latex/base\fontenc.sty
+(C:\Program Files\MiKTeX\tex/latex/lm\t1lmr.fd))
+(C:\Program Files\MiKTeX\tex/latex/base\inputenc.sty)
+(C:\Program Files\MiKTeX\tex/latex/base\textcomp.sty)
+(C:\Program Files\MiKTeX\tex/latex/upquote\upquote.sty)
+(C:\Program Files\MiKTeX\tex/latex/microtype\microtype.sty
+(C:\Program Files\MiKTeX\tex/latex/graphics\keyval.sty)
+(C:\Program Files\MiKTeX\tex/latex/microtype\microtype-pdftex.def)
+(C:\Program Files\MiKTeX\tex/latex/microtype\microtype.cfg))
+(C:\Program Files\MiKTeX\tex/latex/parskip\parskip.sty
+(C:\Program Files\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+(C:\Program Files\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty)
+(C:\Program Files\MiKTeX\tex/generic/kvsetkeys\kvsetkeys.sty))
+(C:\Program Files\MiKTeX\tex/latex/etoolbox\etoolbox.sty))
+(C:\Program Files\MiKTeX\tex/latex/xcolor\xcolor.sty
+(C:\Program Files\MiKTeX\tex/latex/graphics-cfg\color.cfg)
+(C:\Program Files\MiKTeX\tex/latex/graphics-def\pdftex.def))
+(C:\Program Files\MiKTeX\tex/latex/xurl\xurl.sty
+(C:\Program Files\MiKTeX\tex/latex/url\url.sty))
+(C:\Program Files\MiKTeX\tex/latex/bookmark\bookmark.sty
+(C:\Program Files\MiKTeX\tex/latex/hyperref\hyperref.sty
+(C:\Program Files\MiKTeX\tex/generic/pdftexcmds\pdftexcmds.sty
+(C:\Program Files\MiKTeX\tex/generic/infwarerr\infwarerr.sty))
+(C:\Program Files\MiKTeX\tex/generic/kvdefinekeys\kvdefinekeys.sty)
+(C:\Program Files\MiKTeX\tex/generic/pdfescape\pdfescape.sty)
+(C:\Program Files\MiKTeX\tex/latex/hycolor\hycolor.sty)
+(C:\Program Files\MiKTeX\tex/latex/letltxmacro\letltxmacro.sty)
+(C:\Program Files\MiKTeX\tex/latex/auxhook\auxhook.sty)
+(C:\Program Files\MiKTeX\tex/latex/hyperref\pd1enc.def)
+(C:\Program Files\MiKTeX\tex/latex/hyperref\hyperref-langpatches.def)
+(C:\Program Files\MiKTeX\tex/generic/intcalc\intcalc.sty)
+(C:\Program Files\MiKTeX\tex/generic/etexcmds\etexcmds.sty)
+(C:\Program Files\MiKTeX\tex/latex/hyperref\puenc.def)
+(C:\Program Files\MiKTeX\tex/generic/bitset\bitset.sty
+(C:\Program Files\MiKTeX\tex/generic/bigintcalc\bigintcalc.sty))
+(C:\Program Files\MiKTeX\tex/latex/base\atbegshi-ltx.sty))
+(C:\Program Files\MiKTeX\tex/latex/hyperref\hpdftex.def
+(C:\Program Files\MiKTeX\tex/latex/base\atveryend-ltx.sty)
+(C:\Program Files\MiKTeX\tex/latex/rerunfilecheck\rerunfilecheck.sty
+(C:\Program Files\MiKTeX\tex/generic/uniquecounter\uniquecounter.sty)))
+(C:\Program Files\MiKTeX\tex/latex/bookmark\bkm-pdftex.def))
+(C:\Program Files\MiKTeX\tex/latex/biblatex\biblatex.sty
+(C:\Program Files\MiKTeX\tex/latex/logreq\logreq.sty
+(C:\Program Files\MiKTeX\tex/latex/logreq\logreq.def))
+(C:\Program Files\MiKTeX\tex/latex/base\ifthen.sty)
+(C:\Program Files\MiKTeX\tex/latex/biblatex\blx-dm.def)
+(C:\Program Files\MiKTeX\tex/latex/biblatex\blx-compat.def)
+(C:\Program Files\MiKTeX\tex/latex/biblatex\biblatex.def)
+(C:\Program Files\MiKTeX\tex/latex/biblatex/bbx\numeric.bbx
+(C:\Program Files\MiKTeX\tex/latex/biblatex/bbx\standard.bbx))
+(C:\Program Files\MiKTeX\tex/latex/biblatex/cbx\numeric.cbx)
+(C:\Program Files\MiKTeX\tex/latex/biblatex\biblatex.cfg))
+(C:\Program Files\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def)
+No file notes.aux.
+(C:\Program Files\MiKTeX\tex/latex/microtype\mt-cmr.cfg)
+(C:\Program Files\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (C:\Program Files\MiKTeX\tex/latex/hyperref\nameref.sty
+(C:\Program Files\MiKTeX\tex/latex/refcount\refcount.sty)
+(C:\Program Files\MiKTeX\tex/generic/gettitlestring\gettitlestring.sty))
+(C:\Program Files\MiKTeX\tex/latex/biblatex/lbx\english.lbx)
+(C:\Program Files\MiKTeX\tex/latex/l3kernel\expl3.sty)
+(C:\Program Files\MiKTeX\tex/latex/biblatex\blx-case-expl3.sty
+(C:\Program Files\MiKTeX\tex/latex/l3packages/xparse\xparse.sty))
+No file notes.bbl.
+(C:\Program Files\MiKTeX\tex/latex/lm\ts1lmr.fd)
+(C:\Program Files\MiKTeX\tex/latex/lm\ot1lmr.fd)
+(C:\Program Files\MiKTeX\tex/latex/lm\omllmm.fd)
+(C:\Program Files\MiKTeX\tex/latex/lm\omslmsy.fd)
+(C:\Program Files\MiKTeX\tex/latex/lm\omxlmex.fd)
+(C:\Program Files\MiKTeX\tex/latex/amsfonts\umsa.fd)
+(C:\Program Files\MiKTeX\tex/latex/microtype\mt-msa.cfg)
+(C:\Program Files\MiKTeX\tex/latex/amsfonts\umsb.fd)
+(C:\Program Files\MiKTeX\tex/latex/microtype\mt-msb.cfg) [1{C:/Users/mivan/AppD
+ata/Local/MiKTeX/pdftex/config/pdftex.map}]
+
+LaTeX Warning: Citation 'joel' on page 2 undefined on input line 278.
+
+[2] (C:\Program Files\MiKTeX\tex/latex/lm\t1lmtt.fd) [3] [4]
+
+LaTeX Warning: Empty bibliography on input line 562.
+
+[5] (notes.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package biblatex Warning: Please (re)run Biber on the file:
+(biblatex)                notes
+(biblatex)                and rerun LaTeX afterwards.
+
+ ){C:/Program Files/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc}{C:/Program Files/MiKTe
+X/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program Files/MiKTeX/fonts/enc/dvips/lm/lm-m
+athsy.enc}{C:/Program Files/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Program
+ Files/MiKTeX/fonts/enc/dvips/lm/lm-mathex.enc}{C:/Program Files/MiKTeX/fonts/e
+nc/dvips/lm/lm-ts1.enc}<C:/Program Files/MiKTeX/fonts/type1/public/lm/lmbx10.pf
+b><C:/Program Files/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Program Files/M
+iKTeX/fonts/type1/public/lm/lmex10.pfb><C:/Program Files/MiKTeX/fonts/type1/pub
+lic/lm/lmmi10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/lm/lmmi5.pfb><C:/
+Program Files/MiKTeX/fonts/type1/public/lm/lmmi7.pfb><C:/Program Files/MiKTeX/f
+onts/type1/public/lm/lmr10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/lm/l
+mr5.pfb><C:/Program Files/MiKTeX/fonts/type1/public/lm/lmr7.pfb><C:/Program Fil
+es/MiKTeX/fonts/type1/public/lm/lmri10.pfb><C:/Program Files/MiKTeX/fonts/type1
+/public/lm/lmsy10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/lm/lmsy7.pfb>
+<C:/Program Files/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Program Files/MiK
+TeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb><C:/Program Files/MiKTeX/fon
+ts/type1/public/amsfonts/symbols/msbm7.pfb>
+Output written on notes.pdf (5 pages, 240686 bytes).
+SyncTeX written on notes.synctex.gz.
+Transcript written on notes.log.

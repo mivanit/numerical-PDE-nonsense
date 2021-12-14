@@ -1,5 +1,6 @@
 
-# Things to know (2021-12-13 14:16):
+# Lab Things to know (2021-12-13 14:16):
+
 ## Lab 1
 
 - Norms
@@ -115,6 +116,131 @@
 ## Lab 7 
 
 stability regions `:(`
+
+- temporal stability plot:
+  - form the differential equation $\frac{\partial v}{\partial t} = \gamma \cdot v$
+  - approximate the time derivative using the time deriv approx from the scheme
+  - find where the solution is stable or decays in time (be constant or go to zero, we dont want it to blow up)
+    - either solve the scheme explicitly, or use the amplification factor type argument
+  - set $\gamma = 1$, plot $\Delta_t$ in the complex plane
+
+- spatial stability plot
+  - take the spatial discretization that we have in the scheme and build a matrix out of it
+  - inside of that matrix, set $\Delta_x, \Delta_y = 1$
+  - determine $\Delta_t$ from the CFL condition (will have to try multiple)
+  - compute the eigenvalues for some number of gridpoints $N$ and plot them on top of the temporal stability (dots)
+  - if you have multiple time levels on top of the scheme:
+  	- **good luck**
+  	- block matrix system?????????
+
+
+
+
+## Lab 8
+
+how to make a first order system out of a second order equation (example is wave equation)
+
+- set
+	$$v = u_t, \qquad w = u_x$$
+	> note: this works for second order linear, but idk about others
+
+- substitute one of $v,w$ into the governing equation 
+- other one is the "compatibility condition"
+  - Lax pairs? $v_x = w_t$ (not important)
+- take those two equations and shove them into the linear system
+- $$\vec{v}_t = A \vec{v}_x$$
+- $$ \vec{v} = \begin{bmatrix} v \\ w \end{bmatrix} $$
+- take the eigenvals, eigenvects of $A$
+- ????
+- look at the lab, it explains things
+
+
+## Lab 9
+
+block matrices? idk its hard
+
+
+when you have a 2D system, you get block matrices when you discretize it
+
+
+## Lab 10, Lab 11
+
+spectral stuff, not on exam!
+
+
+
+# Homeworks 2021-12-13 16:47
+
+- taylor expand
+- temportal as spatial
+- drawing stencil
+- truncation errors
+- modified equation
+
+> **Note:** "using Fourier analysis" or "taking a Fourier transform" just means plug in a Fourier mode
+
+
+## Well-posedness (hw2)
+
+3 conditions:
+
+- existence
+- uniqueness
+- varies continuously with initial condition
+  - bound on the Fourier mode
+  - $$ \Vert u(x,t) \Vert_2 \leq A e^{at} \Vert u(x,0) \Vert_2 $$
+
+
+### idk what this part is
+need to restrict the coefficient of the highest order even derivative
+ - consider the case when that is zero?
+   - go to the next highest order?
+
+
+# Debugging
+
+- CFL:
+  - funny oscillations (Gibbs phenomena)
+  - if you take $\Delta_t$, it should work (this removes the CFL as a problem)
+    - if setting $\Delta_t$ to be small fixes the problem, then the issue is with the CFL
+    - if setting it to be small does **not** fix the problem, then the issue is with the method
+
+- Boundary conditions
+  - if the solution is seeming to "leak" out, then there might be an issue with the boundary conditions
+  - if it looks fine in the middle, but not on the edges, also check BCs
+
+- Initial conditions:
+  - evolve a really small amount, see if it works
+  - if wrong in early timestep, then probably an IC issue
+
+
+- check indexing
+
+
+
+
+
+# Exam
+
+## CFL:
+
+- ratio of exact wavespeed to numerical wavespeed
+- if greater than one, then the method is unstable (usually..,)
+
+
+## Lax-Richmeyer equivalence theorem
+
+- stability:
+  - $$ |Q|^{n+1} \leq K(T_f) \qquad \text{as} \qquad \sup_n,  \quad \lim_{\Delta_t, \Delta_x \to 0} $$
+
+- consistency:
+  $\lim_{\Delta_t, \Delta_x \to 0}$ of modified equation is the actual equation (truncation error goes to zero)
+
+- converges:
+  $\lim_{\Delta_t, \Delta_x \to 0}$ of the grid function, is the actual function (pointwise)
+
+**theorem:**
+A linear scheme that is both *consistent* and *stable* converges.
 
 
 

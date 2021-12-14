@@ -1,0 +1,564 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\author{}
+\date{}
+
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage[]{biblatex}
+
+\begin{document}
+
+\hypertarget{lab-things-to-know-2021-12-13-1416}{%
+\section{Lab Things to know (2021-12-13
+14:16):}\label{lab-things-to-know-2021-12-13-1416}}
+
+\hypertarget{lab-1}{%
+\subsection{Lab 1}\label{lab-1}}
+
+\begin{itemize}
+\tightlist
+\item
+  Norms
+\item
+  order of accuracy: \[
+        E_{order} = \frac{
+            \log \left( \frac{e_{old}}{ e_{new} } \right)
+        }{
+            \log \left( \frac{N_{new}}{N_{old}} \right)
+        }
+    \]
+\item
+  Fourier series
+\end{itemize}
+
+\hypertarget{lab-2}{%
+\subsection{Lab 2}\label{lab-2}}
+
+\begin{itemize}
+\tightlist
+\item
+  Fourier series
+\item
+  assumptions required for Fourier expansion
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(C_1\) piecewise
+
+    \begin{itemize}
+    \tightlist
+    \item
+      continuous in the first derivative, piecewise
+    \item
+      finitely many discontinuities over the interval
+    \end{itemize}
+  \item
+    \(L_2\) (square integrable)
+
+    \begin{itemize}
+    \tightlist
+    \item
+      if \(C_1\) piecewise, that is a stricted condition than \(L_2\)
+    \end{itemize}
+  \item
+    periodic
+  \end{itemize}
+\item
+  Bessel's equality
+
+  \begin{itemize}
+  \tightlist
+  \item
+    sum of the square of the Fourier coefficients is the norm
+  \end{itemize}
+\item
+  \(\ell_2\) error - \(\Vert\cdot\Vert_2\) of the difference
+\end{itemize}
+
+\hypertarget{lab-3}{%
+\subsection{Lab 3}\label{lab-3}}
+
+\begin{itemize}
+\tightlist
+\item
+  difference operators \(D_0, D_-, D_+\)
+\item
+  general central divided differences formula \[
+        D_0^k f(x) = (2h)^{-k} 
+        \sum_{j \in \mathbb{N}_k }
+        (-1)^j \binom{k}{j}
+        f( x + (k - 2j) h)
+        \qquad
+        \forall \ k \in \mathbb{Z}_{\geq 0} 
+    \]
+\end{itemize}
+
+\hypertarget{lab-4}{%
+\subsection{Lab 4}\label{lab-4}}
+
+\begin{itemize}
+\tightlist
+\item
+  CFL
+
+  \begin{itemize}
+  \tightlist
+  \item
+    CFL is the numerical wavespeed
+  \end{itemize}
+\item
+  amplification factor \(Q\)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    plug Fourier modes into scheme
+  \item
+    \(Q\) has the CFL baked into it
+  \end{itemize}
+\item
+  determining bounds on the CFL
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \(|Q| \leq 1\) gives condition on CFL
+  \item
+    if \(|Q| = 1\), then conserving energy
+  \end{itemize}
+\item
+  energy analysis
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{probably will be on exam}
+  \item
+    usually defined with \(2\)-norm
+  \item
+    take the derivative, work through until you get the boundary terms
+  \item
+    put inside the governing equation??
+  \item
+    energy conserving means derivative of energy will be 0
+  \end{itemize}
+\end{itemize}
+
+\begin{quote}
+energy analysis example for \(u_t + a u_x = 0\)
+\[ u \cdot u_t = - a \cdot u_x \cdot u \]
+\[ \frac{d u^2}{dt} = 2 u \cdot u_t \]
+\[ \frac{1}{2} \int_\Omega \frac{d|u|^2}{dt} d x \]
+\end{quote}
+
+\hypertarget{lab-5}{%
+\subsection{Lab 5}\label{lab-5}}
+
+\begin{itemize}
+\tightlist
+\item
+  dissapative, dispersive, diffusive errors
+
+  \begin{itemize}
+  \tightlist
+  \item
+    use modified equation
+
+    \begin{itemize}
+    \tightlist
+    \item
+      take scheme and taylor expand everything
+    \item
+      take governing equation and shove it to the left, everything else
+      on the right
+    \item
+      what's left on the right is truncation error
+
+      \begin{itemize}
+      \tightlist
+      \item
+        truncation error is before you take \(\Delta_x\), \(\Delta_t\)
+        to \(\lambda\)
+      \end{itemize}
+    \item
+      to get to the modified equation, put all the \(\Delta_t\) in terms
+      of \(\lambda\) using the CFL definition (depends on eqn)
+    \item
+      then, use the governing equation to replace all time derivs with
+      spatial ones (everything in terms of \(\Delta_x\)) \textbf{this is
+      the modified equation}
+    \end{itemize}
+  \end{itemize}
+\item
+  look at leading error term in terms of \(\Delta_x\), look at order of
+  spatial derivatives
+
+  \begin{itemize}
+  \tightlist
+  \item
+    if you have even derivatives, error is dissapative (melting)
+  \item
+    odd derivatives, dispersive (waves shifting)
+  \item
+    both is diffusive
+  \end{itemize}
+\item
+  she may ask us to look at a plot and say things about the plot
+
+  \begin{itemize}
+  \tightlist
+  \item
+    for example, what is the error?
+  \item
+    shifts means dispersive
+  \item
+    decays means dissapative
+  \item
+    both means diffusive
+  \end{itemize}
+\item
+  taking a second order and splitting it up into a system
+\item
+  decoupling a system
+
+  \begin{itemize}
+  \tightlist
+  \item
+    looking for the eigen modes?
+  \item
+    define 2 variables: \(u\) which you solve for, and \(v\) defined by
+    \(v_t = u_x\)
+  \item
+    \textcite{joel} upload notes
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{lab-6}{%
+\subsection{Lab 6}\label{lab-6}}
+
+\begin{itemize}
+\tightlist
+\item
+  implicit schemes
+
+  \begin{itemize}
+  \tightlist
+  \item
+    make matrix operators, take the inverse \[
+    A u^{n+1} = B u^n
+    \qquad\implies\qquad
+    u^{n+1} = A^{-1} B u^n     
+    \]
+  \end{itemize}
+\item
+  amplification factor (matrix) for multiple timestep schemes (leapfrog)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    see equation 5
+  \item
+    want to keep the vector
+    \(\left[ \begin{smallmatrix} \hat{u}^{n+1} \\ \hat{u}^n \end{smallmatrix} \right]\)
+    to have norm constant or decreasing
+  \item
+    do this by making sure the matrix is a contracting map (eigenvals
+    bounded by 1 in magnitude)
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{lab-7}{%
+\subsection{Lab 7}\label{lab-7}}
+
+stability regions \texttt{:(}
+
+\begin{itemize}
+\tightlist
+\item
+  temporal stability plot:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    form the differential equation
+    \(\frac{\partial v}{\partial t} = \gamma \cdot v\)
+  \item
+    approximate the time derivative using the time deriv approx from the
+    scheme
+  \item
+    find where the solution is stable or decays in time (be constant or
+    go to zero, we dont want it to blow up)
+
+    \begin{itemize}
+    \tightlist
+    \item
+      either solve the scheme explicitly, or use the amplification
+      factor type argument
+    \end{itemize}
+  \item
+    set \(\gamma = 1\), plot \(\Delta_t\) in the complex plane
+  \end{itemize}
+\item
+  spatial stability plot
+
+  \begin{itemize}
+  \tightlist
+  \item
+    take the spatial discretization that we have in the scheme and build
+    a matrix out of it
+  \item
+    inside of that matrix, set \(\Delta_x, \Delta_y = 1\)
+  \item
+    determine \(\Delta_t\) from the CFL condition (will have to try
+    multiple)
+  \item
+    compute the eigenvalues for some number of gridpoints \(N\) and plot
+    them on top of the temporal stability (dots)
+  \item
+    if you have multiple time levels on top of the scheme:
+
+    \begin{itemize}
+    \tightlist
+    \item
+      \textbf{good luck}
+    \item
+      block matrix system?????????
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{lab-8}{%
+\subsection{Lab 8}\label{lab-8}}
+
+how to make a first order system out of a second order equation (example
+is wave equation)
+
+\begin{itemize}
+\item
+  set \[v = u_t, \qquad w = u_x\] \textgreater{} note: this works for
+  second order linear, but idk about others
+\item
+  substitute one of \(v,w\) into the governing equation
+\item
+  other one is the ``compatibility condition''
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Lax pairs? \(v_x = w_t\) (not important)
+  \end{itemize}
+\item
+  take those two equations and shove them into the linear system
+\item
+  \[\vec{v}_t = A \vec{v}_x\]
+\item
+  \[ \vec{v} = \begin{bmatrix} v \\ w \end{bmatrix} \]
+\item
+  take the eigenvals, eigenvects of \(A\)
+\item
+  ????
+\item
+  look at the lab, it explains things
+\end{itemize}
+
+\hypertarget{lab-9}{%
+\subsection{Lab 9}\label{lab-9}}
+
+block matrices? idk its hard
+
+when you have a 2D system, you get block matrices when you discretize it
+
+\hypertarget{lab-10-lab-11}{%
+\subsection{Lab 10, Lab 11}\label{lab-10-lab-11}}
+
+spectral stuff, not on exam!
+
+\hypertarget{homeworks-2021-12-13-1647}{%
+\section{Homeworks 2021-12-13 16:47}\label{homeworks-2021-12-13-1647}}
+
+\begin{itemize}
+\tightlist
+\item
+  taylor expand
+\item
+  temportal as spatial
+\item
+  drawing stencil
+\item
+  truncation errors
+\item
+  modified equation
+\end{itemize}
+
+\begin{quote}
+\textbf{Note:} ``using Fourier analysis'' or ``taking a Fourier
+transform'' just means plug in a Fourier mode
+\end{quote}
+
+\hypertarget{well-posedness-hw2}{%
+\subsection{Well-posedness (hw2)}\label{well-posedness-hw2}}
+
+3 conditions:
+
+\begin{itemize}
+\tightlist
+\item
+  existence
+\item
+  uniqueness
+\item
+  varies continuously with initial condition
+
+  \begin{itemize}
+  \tightlist
+  \item
+    bound on the Fourier mode
+  \item
+    \[ \Vert u(x,t) \Vert_2 \leq A e^{at} \Vert u(x,0) \Vert_2 \]
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{idk-what-this-part-is}{%
+\subsubsection{idk what this part is}\label{idk-what-this-part-is}}
+
+need to restrict the coefficient of the highest order even derivative -
+consider the case when that is zero? - go to the next highest order?
+
+\hypertarget{debugging}{%
+\section{Debugging}\label{debugging}}
+
+\begin{itemize}
+\tightlist
+\item
+  CFL:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    funny oscillations (Gibbs phenomena)
+  \item
+    if you take \(\Delta_t\), it should work (this removes the CFL as a
+    problem)
+
+    \begin{itemize}
+    \tightlist
+    \item
+      if setting \(\Delta_t\) to be small fixes the problem, then the
+      issue is with the CFL
+    \item
+      if setting it to be small does \textbf{not} fix the problem, then
+      the issue is with the method
+    \end{itemize}
+  \end{itemize}
+\item
+  Boundary conditions
+
+  \begin{itemize}
+  \tightlist
+  \item
+    if the solution is seeming to ``leak'' out, then there might be an
+    issue with the boundary conditions
+  \item
+    if it looks fine in the middle, but not on the edges, also check BCs
+  \end{itemize}
+\item
+  Initial conditions:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    evolve a really small amount, see if it works
+  \item
+    if wrong in early timestep, then probably an IC issue
+  \end{itemize}
+\item
+  check indexing
+\end{itemize}
+
+\hypertarget{exam}{%
+\section{Exam}\label{exam}}
+
+\hypertarget{cfl}{%
+\subsection{CFL:}\label{cfl}}
+
+\begin{itemize}
+\tightlist
+\item
+  ratio of exact wavespeed to numerical wavespeed
+\item
+  if greater than one, then the method is unstable (usually..,)
+\end{itemize}
+
+\hypertarget{lax-richmeyer-equivalence-theorem}{%
+\subsection{Lax-Richmeyer equivalence
+theorem}\label{lax-richmeyer-equivalence-theorem}}
+
+\begin{itemize}
+\item
+  stability:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \[ |Q|^{n+1} \leq K(T_f) \qquad \text{as} \qquad \sup_n,  \quad \lim_{\Delta_t, \Delta_x \to 0} \]
+  \end{itemize}
+\item
+  consistency: \(\lim_{\Delta_t, \Delta_x \to 0}\) of modified equation
+  is the actual equation (truncation error goes to zero)
+\item
+  converges: \(\lim_{\Delta_t, \Delta_x \to 0}\) of the grid function,
+  is the actual function (pointwise)
+\end{itemize}
+
+\textbf{theorem:} A linear scheme that is both \emph{consistent} and
+\emph{stable} converges.
+
+\printbibliography
+
+\end{document}
