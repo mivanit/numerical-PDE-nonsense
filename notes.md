@@ -47,7 +47,7 @@
 ## Lab 4
 
 - CFL
-  - CFL is the numerical wavespeed
+  - CFL is the ratio of exact wavespeed over numerical wavespeed
 - amplification factor $Q$
   - plug Fourier modes into scheme
   - $Q$ has the CFL baked into it
